@@ -2324,7 +2324,7 @@ function saveLockedHtmlProject(){ exportStandaloneHtml(true); }
   function searchCatalog(q){
     q = cap(q).toLowerCase();
     if(!q) return [];
-    return LAYER_CATALOG.filter(x => searchText(x).includes(q)).slice(0,20);
+  return catalog.filter(x => searchText(x).includes(q)).slice(0,20);
   }
   function makeWmtsCapabilitiesUrl(base, version){
     base = cap(base);
