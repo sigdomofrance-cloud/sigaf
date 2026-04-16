@@ -692,8 +692,8 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
         </div>
         <div>
           <label class="small">Opacité de remplissage</label>
-          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.05" value="0.12" oninput="document.getElementById('styleFillOpacityValue').textContent=this.value; markStyleDirty()">
-          <div class="small"><span id="styleFillOpacityValue">0.12</span></div>
+          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('styleFillOpacityValue').textContent=this.value; syncStyleOpacityPreview(this.value); markStyleDirty()">
+          <div class="small"><span id="styleFillOpacityValue">1</span></div>
         </div>
       </div>
     </div>
@@ -1395,23 +1395,7 @@ function safe(v,d='—'){ return v===null||v===undefined||v===''?d:v; }
 function isGeoField(key){ const k=String(key||'').toLowerCase(); return ['geometry','geom','the_geom','wkt','geojson','bbox','xmin','xmax','ymin','ymax','lat','latitude','lon','lng','long','longitude'].includes(k) || k.startsWith('geom_') || k.endsWith('_geom') || k.endsWith('_geometry') || /^lat(itude)?[_-]/.test(k) || /^lon(g(itude)?)?[_-]/.test(k); }
 function isStyleField(key){ const k=String(key||'').toLowerCase(); return ['fill-opacity','stroke-opacity','stroke','fill','stroke-width','stroke-linecap','stroke-linejoin','marker-color','marker-size','marker-symbol'].includes(k); }
 function filteredPropertyKeys(props){ return Object.keys(props||{}).filter(k=>!k.startsWith('__') && !isGeoField(k) && !isStyleField(k)); }
-function sanitizedProperties(props){ const out={}; 
-function populateLabelFieldSelect(entry) {
-  const select = document.getElementById('LBL_FIELD_SELECT');
-  if (!select || !entry || !entry.data?.features?.length) return;
-
-  const props = entry.data.features[0].properties || {};
-  const keys = Object.keys(props).filter(k =>
-    !k.startsWith('__') &&
-    !isGeoField(k) &&
-    !isStyleField(k)
-  );
-
-  select.innerHTML =
-    '<option value="">— Choisir un champ —</option>' +
-    keys.map(k => `<option value="${k}">${k}</option>`).join('');
-}
-filteredPropertyKeys(props).forEach(k=>{ const v=props[k]; if(v!==null && v!==undefined && String(v).trim()!=='') out[k]=v; }); return out; }
+function sanitizedProperties(props){ const out={}; filteredPropertyKeys(props).forEach(k=>{ const v=props[k]; if(v!==null && v!==undefined && String(v).trim()!=='') out[k]=v; }); return out; }
 function makeSelectionFeature(f){ return {type:'Feature',properties:{...(f.properties||{})},geometry:f.geometry,id:(f.id||f.properties?.__fid||(++currentSelectionId))}; }
 function detectCRS(geojson){ const name=geojson?.crs?.properties?.name||geojson?.crs?.name||''; const upper=String(name).toUpperCase(); if(upper.includes('2154')) return 'EPSG:2154'; if(upper.includes('3857')||upper.includes('900913')) return 'EPSG:3857'; if(upper.includes('4326')||upper.includes('CRS84')) return 'EPSG:4326'; const f=(geojson.features||[]).find(x=>x.geometry&&x.geometry.coordinates); if(!f) return 'EPSG:4326'; const p=firstCoord(f.geometry.coordinates); if(!p) return 'EPSG:4326'; const x=p[0], y=p[1]; if(Math.abs(x)<=180&&Math.abs(y)<=90) return 'EPSG:4326'; if(Math.abs(x)>200000&&Math.abs(x)<1500000&&Math.abs(y)>5000000&&Math.abs(y)<7500000) return 'EPSG:2154'; if(Math.abs(x)>1000&&Math.abs(y)>1000) return 'EPSG:3857'; return 'EPSG:4326'; }
 function firstCoord(coords){ if(!Array.isArray(coords)) return null; if(typeof coords[0]==='number') return coords; for(const c of coords){ const r=firstCoord(c); if(r) return r; } return null; }
@@ -1552,7 +1536,7 @@ function updateLayerManager(){
     </div>
     <div class="transparency">
       <span class="small">Transparence</span>
-      <input type="range" min="0.05" max="1" step="0.05" value="${entry.opacity ?? 1}" oninput="setEntryOpacity('${entry.id}', this.value)">
+      <input id="opacity_${entry.id}" type="range" min="0" max="1" step="0.05" value="${entry.opacity ?? 1}" oninput="setEntryOpacity('${entry.id}', this.value)">
     </div>
   </div>`).join('');
 }function closeLayerMenus(){ document.querySelectorAll('.layer-menu').forEach(m=>m.classList.remove('open')); }
@@ -1560,7 +1544,7 @@ function toggleLayerMenu(event,id){ event.stopPropagation(); const menu=document
 function openStyleForLayer(id){ closeLayerMenus(); const panel=document.getElementById('settings'); closePanels(); panel.classList.add('open'); document.body.classList.add('panel-open'); currentStyledLayerId=id; refreshLayerStylePanel(); }
 document.addEventListener('click', closeLayerMenus);
 function toggleEntryVisible(id, visible){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; entry.visible=visible; entry.layerIds.forEach(lid=>{ if(map.getLayer(lid)) map.setLayoutProperty(lid,'visibility',visible?'visible':'none'); }); updateLegend(); updateStats(); }
-function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; entry.opacity=parseFloat(value); applyEntryStyle(entry,true); updateLegend(); }
+function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; const v=Math.max(0, Math.min(1, parseFloat(value))); entry.opacity=v; if(entry.type!=='building') entry.fillOpacity=v; syncOpacityUi(entry); applyEntryStyle(entry,true); updateLegend(); }
 function renameEntry(id){
   const entry=userLayers.find(x=>x.id===id);
   if(!entry) return;
@@ -1855,7 +1839,7 @@ function getDefaultLayerStyle(entry){
     styleField:'',
     numericField:'',
     fillColor: baseColor,
-    fillOpacity: isBuilding ? 0.88 : (kind==='point' ? 0.85 : (kind==='polygon' ? 0.12 : 0)),
+    fillOpacity: 1,
     outlineColor: isBuilding ? '#334155' : (kind==='point' ? '#ffffff' : baseColor),
     outlineWidth: isBuilding ? 0.6 : (kind==='point' ? 1.2 : 1.5),
     outlineOpacity: isBuilding ? 0.55 : 1,
@@ -1876,7 +1860,9 @@ function getDefaultLayerStyle(entry){
     filterExpression: ''
   };
 }
-function normalizeEntryStyle(entry){ if(!entry) return; const defs=getDefaultLayerStyle(entry); Object.keys(defs).forEach(k=>{ if(entry[k]===undefined || entry[k]===null || entry[k]==='') entry[k]=defs[k]; }); if(!entry.color) entry.color=entry.fillColor || defs.fillColor; }
+function normalizeEntryStyle(entry){ if(!entry) return; const defs=getDefaultLayerStyle(entry); Object.keys(defs).forEach(k=>{ if(entry[k]===undefined || entry[k]===null || entry[k]==='') entry[k]=defs[k]; }); if(entry.opacity===undefined || entry.opacity===null || Number.isNaN(Number(entry.opacity))) entry.opacity=1; if(entry.fillOpacity===undefined || entry.fillOpacity===null || Number.isNaN(Number(entry.fillOpacity))) entry.fillOpacity=Number(entry.opacity ?? 1); if(entry.type!=='building') entry.fillOpacity=Number(entry.opacity ?? entry.fillOpacity ?? 1); if(!entry.color) entry.color=entry.fillColor || defs.fillColor; }
+function syncOpacityUi(entry){ if(!entry) return; const val=Math.max(0, Math.min(1, Number(entry.opacity ?? entry.fillOpacity ?? 1))); entry.opacity=val; if(entry.type!=='building') entry.fillOpacity=val; const manager=document.getElementById('opacity_'+entry.id); if(manager) manager.value=String(val); const current=getCurrentStyleEntry ? getCurrentStyleEntry() : null; if(current && current.id===entry.id){ const slider=document.getElementById('styleFillOpacity'); const out=document.getElementById('styleFillOpacityValue'); if(slider) slider.value=String(val); if(out) out.textContent=String(val); } }
+function syncStyleOpacityPreview(value){ const entry=getCurrentStyleEntry ? getCurrentStyleEntry() : null; if(!entry) return; const val=Math.max(0, Math.min(1, Number(value ?? 1))); const manager=document.getElementById('opacity_'+entry.id); if(manager) manager.value=String(val); const out=document.getElementById('styleFillOpacityValue'); if(out) out.textContent=String(val); }
 function getAvailableStyleModes(entry){ const kind=geometryKind(entry); if(kind==='point') return [['single','Symbole unique'],['attribute','Par attribut'],['proportional','Cercles proportionnels'],['heatmap','Heatmap']]; if(kind==='polygon' || entry?.type==='building') return [['single','Symbole unique'],['attribute','Par attribut']]; if(kind==='line') return [['single','Symbole unique'],['attribute','Par attribut']]; return [['single','Symbole unique']]; }
 function markStyleDirty(msg='Modifications non appliquées. Clique sur « Valider les choix ».'){ const el=document.getElementById('styleDirtyMsg'); if(el){ el.textContent=msg; el.style.color='#2563eb'; } }
 function clearStyleDirty(msg='Aucune modification en attente.'){ const el=document.getElementById('styleDirtyMsg'); if(el){ el.textContent=msg; el.style.color='#6b7280'; } }
@@ -1932,8 +1918,8 @@ function refreshLayerStylePanel(){
   extrusionField.innerHTML=`<option value="">${firstLabel}</option>`+numericKeys.map(k=>`<option value="${k}" ${entry.extrusionField===k?'selected':''}>${k}</option>`).join('');
   document.getElementById('styleShowLegend').checked=entry.showInLegend!==false;
   document.getElementById('styleFillColor').value=entry.fillColor||entry.color||'#2b7cff';
-  document.getElementById('styleFillOpacity').value=entry.fillOpacity ?? 0.12;
-  document.getElementById('styleFillOpacityValue').textContent=entry.fillOpacity ?? 0.12;
+  document.getElementById('styleFillOpacity').value=entry.opacity ?? entry.fillOpacity ?? 1;
+  document.getElementById('styleFillOpacityValue').textContent=entry.opacity ?? entry.fillOpacity ?? 1;
   document.getElementById('styleOutlineColor').value=entry.outlineColor||'#334155';
   document.getElementById('styleOutlineOpacity').value=entry.outlineOpacity ?? 1;
   document.getElementById('styleOutlineOpacityValue').textContent=entry.outlineOpacity ?? 1;
@@ -1957,6 +1943,7 @@ function refreshLayerStylePanel(){
   document.getElementById('extrusionDefault').value=Number(entry.extrusionDefault ?? (entry.type==='building'?6:0));
   document.getElementById('extrusionNormalize').checked=!!entry.extrusionNormalize;
   refreshLayerStyleUi();
+  syncOpacityUi(entry);
   clearStyleDirty();
 }
 function debouncedApplyLayerStyle(){ markStyleDirty(); }
@@ -1971,7 +1958,7 @@ function applyEntryStyle(entry, skipLegend){
   const kind=geometryKind(entry);
   const fillColorExpr = entry.renderMode==='attribute' && entry.styleField ? makeColorExpression(entry.styleField,['literal',entry.fillColor]) : entry.fillColor;
   const lineColorExpr = entry.renderMode==='attribute' && entry.styleField ? makeColorExpression(entry.styleField,['literal',entry.outlineColor]) : entry.outlineColor;
-  const fillOpacity=(Number(entry.fillOpacity ?? 0.12) * Number(entry.opacity ?? 1));
+  const fillOpacity=Number(entry.type==='building' ? (entry.fillOpacity ?? entry.opacity ?? 1) : (entry.opacity ?? entry.fillOpacity ?? 1));
   const outlineOpacity=(Number(entry.outlineOpacity ?? 1) * Number(entry.opacity ?? 1));
   if(entry.type==='building'){
     const fillId=entry.layerIds.find(x=>map.getLayer(x) && map.getLayer(x).type==='fill-extrusion');
@@ -2028,7 +2015,8 @@ function applyActiveLayerStyle(skipLegend){
   entry.styleField=document.getElementById('styleField').value || '';
   entry.numericField=document.getElementById('styleNumericField').value || '';
   entry.fillColor=document.getElementById('styleFillColor').value;
-  entry.fillOpacity=parseFloat(document.getElementById('styleFillOpacity').value || 0.12);
+  entry.fillOpacity=parseFloat(document.getElementById('styleFillOpacity').value || 1);
+  entry.opacity=entry.fillOpacity;
   entry.outlineColor=document.getElementById('styleOutlineColor').value;
   entry.outlineOpacity=parseFloat(document.getElementById('styleOutlineOpacity').value || 1);
   entry.outlineWidth=parseFloat(document.getElementById('styleOutlineWidth').value || 1.5);
@@ -2048,6 +2036,7 @@ function applyActiveLayerStyle(skipLegend){
   entry.extrusionDefault=parseFloat(document.getElementById('extrusionDefault').value || (entry.type==='building'?6:0));
   entry.extrusionNormalize=!!document.getElementById('extrusionNormalize').checked;
   applyEntryStyle(entry, skipLegend);
+  syncOpacityUi(entry);
   clearStyleDirty('Style appliqué.');
 }
 function reapplyStoredLayerStyle(){ const entry=getCurrentStyleEntry(); if(!entry) return; applyEntryStyle(entry); clearStyleDirty('Style actualisé.'); }
@@ -2420,12 +2409,13 @@ setTimeout(()=>{
 }, 0);
 
 map.on('load', ()=>{ initPanelResizers(); applyImportLockUI(); updateLayerManager(); updateLegend(); updateTable(); updateStats(); refreshSearchFields(); refreshStyleLayers(); refreshStatsLayerOptions(); ensureMeasureLayers(); if(EMBEDDED) restoreProject(EMBEDDED); buildQuickSearchIndex(); const basemapLayer=(map.getStyle().layers||[]).find(l=>l.id==='basemap'); updateBasemapAttribution(basemapLayer?.source||'positron'); setStatus('Conception Domofrance - Direction Valorisation du Patrimoine / sigdomofrance@domofrance.fr'); });
-
-function prepareStandaloneClone(lockImports){
-  if (lockImports === undefined) lockImports = false;
-  return document.documentElement.outerHTML;
+function prepareStandaloneClone(lockImports=false){
+  const project=buildProjectObject();
+  let html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  const payload=`<script>window.__SIGAF_EMBEDDED_PROJECT=${JSON.stringify(project)};window.__LOCK_IMPORTS__=${lockImports?'true':'false'};<\/script>`;
+  html=html.replace('</body>', payload+'</body>');
+  return html;
 }
-
 function exportStandaloneHtml(lockImports=false){
   const blob=new Blob([prepareStandaloneClone(lockImports)],{type:'text/html'});
   downloadBlob(blob, lockImports?'carte_3d_des_batiments_figee.html':'carte_3d_des_batiments_export.html');
@@ -2688,13 +2678,13 @@ const streetViewImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAY
     const fillId = id + '_fill';
     const lineId = id + '_line';
     const pointId = id + '_point';
-    map.addLayer({ id:fillId, type:'fill', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Polygon'], paint:{'fill-color':'#2b7cff','fill-opacity':0.12} });
+    map.addLayer({ id:fillId, type:'fill', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Polygon'], paint:{'fill-color':'#2b7cff','fill-opacity':1} });
     map.addLayer({ id:lineId, type:'line', source:sourceId, minzoom:profile.minZoom, filter:['any',['==','$type','LineString'],['==','$type','Polygon']], paint:{'line-color':'#334155','line-width':1.3,'line-opacity':0.95} });
-    map.addLayer({ id:pointId, type:'circle', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Point'], paint:{'circle-radius':['interpolate',['linear'],['zoom'],profile.minZoom,2,19,5],'circle-color':'#2b7cff','circle-opacity':0.82,'circle-stroke-color':'#ffffff','circle-stroke-width':1} });
+    map.addLayer({ id:pointId, type:'circle', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Point'], paint:{'circle-radius':['interpolate',['linear'],['zoom'],profile.minZoom,2,19,5],'circle-color':'#2b7cff','circle-opacity':1,'circle-stroke-color':'#ffffff','circle-stroke-width':1} });
 
     const entry = {
       id, name, type:'wfs', crs:wfsSrs, visible:true, opacity:1,
-      color:'#2b7cff', fillColor:'#2b7cff', fillOpacity:0.12, outlineColor:'#334155',
+      color:'#2b7cff', fillColor:'#2b7cff', fillOpacity:1, outlineColor:'#334155',
       outlineOpacity:1, outlineWidth:1.3, lineWidth:1.3,
       sourceId, layerIds:[fillId,lineId,pointId],
       remoteType:'wfs', remoteUrl:url, remoteLayers:typeName, remoteVersion:version,
@@ -3133,7 +3123,11 @@ function _refreshPopupSelectorWrap(){
   if(wrap) wrap.style.display=userLayers.filter(u=>u.data&&u.layerIds).length?'block':'none';
   renderPopupLayerSelector();
 }
+
 </script>
+
+
+
 
 <script id="catalog-patch-v9">
 (function(){
@@ -3315,7 +3309,7 @@ async function fetchWfsPage(baseUrl, version, typeNames, bboxParam, pageSize, ma
     map.addLayer({
       id: fillId, type:'fill', source:sourceId, minzoom:p.minZoom,
       filter:['any',['==',['geometry-type'],'Polygon'],['==',['geometry-type'],'MultiPolygon']],
-      paint:{'fill-color':'#2b7cff','fill-opacity':0.12}
+      paint:{'fill-color':'#2b7cff','fill-opacity':1}
     });
     map.addLayer({
       id: lineId, type:'line', source:sourceId, minzoom:p.minZoom,
@@ -3436,6 +3430,64 @@ async function fetchWfsPage(baseUrl, version, typeNames, bboxParam, pageSize, ma
 
 
 
+<div id="labelConfigOverlay" class="label-config-overlay" aria-hidden="true">
+  <div class="label-config-dialog" role="dialog" aria-modal="true" aria-labelledby="labelConfigTitle">
+    <div class="popup-config-header">
+      <div><div id="labelConfigTitle" class="popup-config-title">Configurer étiquettes</div><div class="popup-config-subtitle">Choix du champ et style des labels</div></div>
+      <button class="popup-config-close" type="button" onclick="closeLabelConfigPanel()">×</button>
+    </div>
+    <div class="label-grid">
+      <div class="label-section">
+        <h4 style="margin:0 0 8px 0">Attribut</h4>
+        <label class="small">Champ affiché</label>
+        <select id="labelFieldSelect"></select>
+        <div class="label-placement-help">Le champ choisi sera affiché sur la carte pour cette couche.</div>
+        <h4 style="margin:14px 0 8px 0">Style</h4>
+        <div class="style-row">
+          <div><label class="small">Police</label><select id="labelFontFamily"><option value="Open Sans Regular">Open Sans</option><option value="Arial Unicode MS Regular">Arial</option><option value="Noto Sans Regular">Noto Sans</option></select></div>
+          <div><label class="small">Taille</label><select id="labelFontSize"><option value="10">10 px</option><option value="11">11 px</option><option value="12">12 px</option><option value="14">14 px</option><option value="16">16 px</option><option value="18">18 px</option></select></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Couleur</label><input id="labelColor" type="color" value="#1f2937"></div>
+          <div><label class="small">Halo</label><input id="labelHaloColor" type="color" value="#ffffff"></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Placement</label><select id="labelPlacement"><option value="center">Centré</option><option value="point">Point</option><option value="line">Ligne</option><option value="line-center">Ligne centrée</option><option value="inside">Intérieur</option><option value="outside">Extérieur</option></select></div>
+          <div><label class="small">Superposition</label><select id="labelOverlap"><option value="false">Éviter les chevauchements</option><option value="true">Autoriser</option></select></div>
+        </div>
+      </div>
+      <div class="label-section">
+        <h4 style="margin:0 0 8px 0">Aperçu</h4>
+        <div id="labelConfigPreview" class="label-preview"></div>
+      </div>
+    </div>
+    <div class="label-actions"><button type="button" onclick="closeLabelConfigPanel()">Annuler</button><button type="button" onclick="saveLabelConfigPanel()"><i class="fa-solid fa-check"></i> Enregistrer</button></div>
+  </div>
+</div>
+<div id="thematicConfigOverlay" class="thematic-config-overlay" aria-hidden="true">
+  <div class="thematic-config-dialog" role="dialog" aria-modal="true" aria-labelledby="thematicConfigTitle">
+    <div class="popup-config-header">
+      <div><div id="thematicConfigTitle" class="popup-config-title">Analyse thématique</div><div class="popup-config-subtitle">Classification, palette et contour</div></div>
+      <button class="popup-config-close" type="button" onclick="closeThematicConfigPanel()">×</button>
+    </div>
+    <div class="thematic-grid">
+      <div class="thematic-section">
+        <div class="style-row">
+          <div><label class="small">Méthode</label><select id="thematicMethod"><option value="categorical">Catégories</option><option value="quantile">Quantiles</option></select></div>
+          <div><label class="small">Classes</label><select id="thematicClassCount"><option>3</option><option selected>5</option><option>7</option></select></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Couleur contour</label><input id="thematicOutlineColor" type="color" value="#334155"></div>
+          <div><label class="small">Épaisseur contour</label><input id="thematicOutlineWidth" type="range" min="0" max="6" step="0.5" value="1.5"></div>
+        </div>
+        <div class="small" style="margin-top:10px">Palette</div>
+        <div id="thematicPaletteSwatches" class="thematic-swatches"></div>
+      </div>
+      <div class="thematic-section"><h4 style="margin:0 0 8px 0">Aperçu</h4><div id="thematicPreview" class="thematic-preview"></div></div>
+    </div>
+    <div class="thematic-actions"><button type="button" onclick="closeThematicConfigPanel()">Annuler</button><button type="button" onclick="saveThematicConfigPanel()"><i class="fa-solid fa-check"></i> Appliquer</button></div>
+  </div>
+</div>
 
 
 
@@ -3944,62 +3996,5 @@ document.addEventListener('transitionend', (e)=>{
   }
 })();
 </script>
-
-<!-- === LABELS PAR COUCHE (STABLE / ES5) === -->
-<script>
-(function(){
-  var wait=setInterval(function(){
-    if(window.map&&window.map.addLayer&&window.userLayers){clearInterval(wait);init();}
-  },100);
-
-  function init(){
-    for(var i=0;i<userLayers.length;i++){
-      if(!userLayers[i].labelConfig){
-        userLayers[i].labelConfig={enabled:false,field:'',size:11,color:'#111827'};
-      }
-    }
-
-    window.ensureLabelLayer=function(e){
-      if(!e||!e.labelConfig)return;
-      var id=e.id+'_label';
-      if(!e.labelConfig.enabled||!e.labelConfig.field){
-        if(map.getLayer(id))map.removeLayer(id);return;
-      }
-      if(map.getLayer(id))map.removeLayer(id);
-      map.addLayer({id:id,type:'symbol',source:e.sourceId,
-        layout:{'text-field':['to-string',['get',e.labelConfig.field]],'text-size':e.labelConfig.size,'text-offset':[0,0.6]},
-        paint:{'text-color':e.labelConfig.color,'text-halo-color':'#ffffff','text-halo-width':1}
-      });
-    };
-
-    if(window.applyEntryStyle){
-      var old=window.applyEntryStyle;
-      window.applyEntryStyle=function(e,s){old(e,s);ensureLabelLayer(e);};
-    }
-
-    var ui=setInterval(function(){
-      var host=document.querySelector('#settings .style-grid');
-      if(!host||document.getElementById('LBL_BOX'))return;
-      clearInterval(ui);
-      var d=document.createElement('div');d.id='LBL_BOX';d.className='style-card';
-      d.innerHTML='<div class="style-section-title">Étiquettes</div>'+
-        'label>Champ d’étiquette</label><select id="LBL_FIELD_SELECT"></select>'+
-        '<label>Taille</label><input id="LBL_SIZE" type="number" value="11">'+
-        '<label>Couleur</label><input id="LBL_COLOR" type="color" value="#111827">'+
-        '<button id="LBL_APPLY">Appliquer</button>';
-      host.appendChild(d);
-      document.getElementById('LBL_APPLY').onclick=function(){
-        var e=getCurrentStyleEntry&&getCurrentStyleEntry();if(!e)return;
-        e.labelConfig.enabled=true;
-        e.labelConfig.field=document.getElementById('LBL_FIELD').value;
-        e.labelConfig.size=Number(document.getElementById('LBL_SIZE').value);
-        e.labelConfig.color=document.getElementById('LBL_COLOR').value;
-        ensureLabelLayer(e);
-      };
-    },200);
-  }
-})();
-</script>
-
 </body>
 </html>
