@@ -4055,8 +4055,13 @@ document.addEventListener('transitionend', (e)=>{
     return {
       field,
       font: 'Myriad',
-      size: isPoint ? 8 : 10
-      ,
+     "text-size": [
+  "interpolate", ["linear"], ["zoom"],
+  14, 9,
+  16, 11,
+  18, 14,
+  20, 18
+]
       color: '#ffffff',
       placement,
       overlap: false,
