@@ -2,6 +2,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<!--
+E6 AUDIT / PREPARATION
+- Base conservée : E5.1
+- Interface d'origine préservée
+- Aucun retrait fonctionnel majeur
+- Ajout de garde-fous non destructifs pour stabiliser l'affichage
+- Étape E6 = audit + préparation à la correction E7
+-->
+
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Carte 3D des bâtiments</title>
@@ -692,7 +701,7 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
         </div>
         <div>
           <label class="small">Opacité de remplissage</label>
-          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('styleFillOpacityValue').textContent=this.value; markStyleDirty()">
+          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('styleFillOpacityValue').textContent=this.value; syncStyleOpacityPreview(this.value); markStyleDirty()">
           <div class="small"><span id="styleFillOpacityValue">1</span></div>
         </div>
       </div>
@@ -1075,7 +1084,7 @@ const defaultCenter = [-0.5765, 44.8492];
 const defaultZoom = 10;
 const map = window.map = new maplibregl.Map({
   container:'map',
-  style:{version:8,sources:{
+  style:{version:8,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',sources:{
 voyager:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png','https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png','https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],tileSize:256,attribution:' '},
 positron:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],tileSize:256,attribution:' '},
 osmfr:{type:'raster',tiles:['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png','https://b.tile.openstreetmap.org/{z}/{x}/{y}.png','https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors'},
@@ -1087,14 +1096,14 @@ topo:{type:'raster',tiles:['https://a.tile.opentopomap.org/{z}/{x}/{y}.png','htt
 ign_plan:{type:'raster',tiles:['https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}'],tileSize:256},
 ign_parcellaire:{type:'raster',tiles:['https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=CADASTRALPARCELS.PARCELLAIRE_EXPRESS&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}'],tileSize:256},
 blank:{type:'raster',tiles:['data:image/gif;base64,R0lGODlhAQABAAAAACw='],tileSize:256}
-},layers:[{id:'basemap',type:'raster',source:'osmfr'}]},
+},layers:[{id:'basemap',type:'raster',source:'positron'}]},
   center:defaultCenter,zoom:defaultZoom,pitch:0,bearing:0,hash:true,preserveDrawingBuffer:true,maxPitch:85
 });
 map.dragRotate.disable();
 map.touchZoomRotate.enableRotation();
 
 function getSafeBasemapSource(name){
-  const safeName = (name && map.getSource(name)) ? name : 'osmfr';
+  const safeName = (name && map.getSource(name)) ? name : 'positron';
   return safeName;
 }
 
@@ -1141,7 +1150,7 @@ let userLayers = [];
 window.userLayers = userLayers;
 let selection = [];
 let pitchOn = false;
-map.on('load', ()=>{ ensureBasemapLoaded('osmfr'); ensureReliefLayers(); setTimeout(()=>{ try{ map.resize(); }catch(e){} }, 80); });
+map.on('load', ()=>{ ensureBasemapLoaded('positron'); ensureReliefLayers(); setTimeout(()=>{ try{ map.resize(); }catch(e){} }, 80); });
 const CHART_PALETTE=['#2b7cff','#8b5cf6','#10b981','#f59e0b','#ef4444','#14b8a6','#ec4899','#64748b','#84cc16','#06b6d4'];
 let selectionMode = false;
 let measureMode = false;
@@ -1482,7 +1491,7 @@ function refreshExtrusionUi(){
   if(factorWrap) factorWrap.style.display = (mode==='factor' || mode==='auto') && !normalize ? 'block' : 'none';
 }
 function addLayerEntry(fc, name){ if(!fc?.features?.length) throw new Error('Aucune entité dans le fichier.'); const type=detectLayerType(fc.features[0]); const id='lyr_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); const crs=toWGS84InPlace(fc); applyInitialFeatureEnrichment(fc, type);
-  const entry={id,name,type,data:fc,crs,visible:true,opacity:1,color:randomColor(userLayers.length),colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:type==='building',extrusionField:'',extrusionMode:'auto',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:type==='building'?6:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',sourceId:id+'_src',layerIds:[],geometryType:fc.features[0].geometry?.type||'',popupFields:[],popupConfig:null};
+  const entry={id,name,type,data:fc,crs,visible:true,opacity:type==='building'?0.88:1,color:randomColor(userLayers.length),colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:type==='building',extrusionField:'',extrusionMode:'auto',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:type==='building'?6:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',sourceId:id+'_src',layerIds:[],geometryType:fc.features[0].geometry?.type||'',popupFields:[],popupConfig:null};
   Object.assign(entry, getDefaultLayerStyle(entry));
   map.addSource(entry.sourceId,{type:'geojson',data:fc});
   if(type==='building'){
@@ -1536,7 +1545,7 @@ function updateLayerManager(){
     </div>
     <div class="transparency">
       <span class="small">Transparence</span>
-      <input type="range" min="0.05" max="1" step="0.05" value="${entry.opacity ?? 1}" oninput="setEntryOpacity('${entry.id}', this.value)">
+      <input id="opacity_${entry.id}" type="range" min="0" max="1" step="0.05" value="${entry.opacity ?? 1}" oninput="setEntryOpacity('${entry.id}', this.value)">
     </div>
   </div>`).join('');
 }function closeLayerMenus(){ document.querySelectorAll('.layer-menu').forEach(m=>m.classList.remove('open')); }
@@ -1544,7 +1553,7 @@ function toggleLayerMenu(event,id){ event.stopPropagation(); const menu=document
 function openStyleForLayer(id){ closeLayerMenus(); const panel=document.getElementById('settings'); closePanels(); panel.classList.add('open'); document.body.classList.add('panel-open'); currentStyledLayerId=id; refreshLayerStylePanel(); }
 document.addEventListener('click', closeLayerMenus);
 function toggleEntryVisible(id, visible){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; entry.visible=visible; entry.layerIds.forEach(lid=>{ if(map.getLayer(lid)) map.setLayoutProperty(lid,'visibility',visible?'visible':'none'); }); updateLegend(); updateStats(); }
-function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; const v=parseFloat(value); entry.opacity=v; entry.fillOpacity=v; applyEntryStyle(entry,true); if(currentStyledLayerId===id){ const s=document.getElementById('styleFillOpacity'); const sv=document.getElementById('styleFillOpacityValue'); if(s) s.value=v; if(sv) sv.textContent=v; } updateLegend(); }
+function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; const v=Math.max(0, Math.min(1, parseFloat(value))); entry.opacity=v; if(entry.type!=='building') entry.fillOpacity=v; syncOpacityUi(entry); applyEntryStyle(entry,true); updateLegend(); }
 function renameEntry(id){
   const entry=userLayers.find(x=>x.id===id);
   if(!entry) return;
@@ -1860,7 +1869,9 @@ function getDefaultLayerStyle(entry){
     filterExpression: ''
   };
 }
-function normalizeEntryStyle(entry){ if(!entry) return; const defs=getDefaultLayerStyle(entry); Object.keys(defs).forEach(k=>{ if(entry[k]===undefined || entry[k]===null || entry[k]==='') entry[k]=defs[k]; }); if(!entry.color) entry.color=entry.fillColor || defs.fillColor; }
+function normalizeEntryStyle(entry){ if(!entry) return; const defs=getDefaultLayerStyle(entry); Object.keys(defs).forEach(k=>{ if(entry[k]===undefined || entry[k]===null || entry[k]==='') entry[k]=defs[k]; }); if(entry.opacity===undefined || entry.opacity===null || Number.isNaN(Number(entry.opacity))) entry.opacity=1; if(entry.fillOpacity===undefined || entry.fillOpacity===null || Number.isNaN(Number(entry.fillOpacity))) entry.fillOpacity=Number(entry.opacity ?? 1); if(entry.type!=='building') entry.fillOpacity=Number(entry.opacity ?? entry.fillOpacity ?? 1); if(!entry.color) entry.color=entry.fillColor || defs.fillColor; }
+function syncOpacityUi(entry){ if(!entry) return; const val=Math.max(0, Math.min(1, Number(entry.opacity ?? entry.fillOpacity ?? 1))); entry.opacity=val; if(entry.type!=='building') entry.fillOpacity=val; const manager=document.getElementById('opacity_'+entry.id); if(manager) manager.value=String(val); const current=getCurrentStyleEntry ? getCurrentStyleEntry() : null; if(current && current.id===entry.id){ const slider=document.getElementById('styleFillOpacity'); const out=document.getElementById('styleFillOpacityValue'); if(slider) slider.value=String(val); if(out) out.textContent=String(val); } }
+function syncStyleOpacityPreview(value){ const entry=getCurrentStyleEntry ? getCurrentStyleEntry() : null; if(!entry) return; const val=Math.max(0, Math.min(1, Number(value ?? 1))); const manager=document.getElementById('opacity_'+entry.id); if(manager) manager.value=String(val); const out=document.getElementById('styleFillOpacityValue'); if(out) out.textContent=String(val); }
 function getAvailableStyleModes(entry){ const kind=geometryKind(entry); if(kind==='point') return [['single','Symbole unique'],['attribute','Par attribut'],['proportional','Cercles proportionnels'],['heatmap','Heatmap']]; if(kind==='polygon' || entry?.type==='building') return [['single','Symbole unique'],['attribute','Par attribut']]; if(kind==='line') return [['single','Symbole unique'],['attribute','Par attribut']]; return [['single','Symbole unique']]; }
 function markStyleDirty(msg='Modifications non appliquées. Clique sur « Valider les choix ».'){ const el=document.getElementById('styleDirtyMsg'); if(el){ el.textContent=msg; el.style.color='#2563eb'; } }
 function clearStyleDirty(msg='Aucune modification en attente.'){ const el=document.getElementById('styleDirtyMsg'); if(el){ el.textContent=msg; el.style.color='#6b7280'; } }
@@ -1941,6 +1952,7 @@ function refreshLayerStylePanel(){
   document.getElementById('extrusionDefault').value=Number(entry.extrusionDefault ?? (entry.type==='building'?6:0));
   document.getElementById('extrusionNormalize').checked=!!entry.extrusionNormalize;
   refreshLayerStyleUi();
+  syncOpacityUi(entry);
   clearStyleDirty();
 }
 function debouncedApplyLayerStyle(){ markStyleDirty(); }
@@ -1955,7 +1967,7 @@ function applyEntryStyle(entry, skipLegend){
   const kind=geometryKind(entry);
   const fillColorExpr = entry.renderMode==='attribute' && entry.styleField ? makeColorExpression(entry.styleField,['literal',entry.fillColor]) : entry.fillColor;
   const lineColorExpr = entry.renderMode==='attribute' && entry.styleField ? makeColorExpression(entry.styleField,['literal',entry.outlineColor]) : entry.outlineColor;
-  const fillOpacity=Number(entry.opacity ?? entry.fillOpacity ?? 1);
+  const fillOpacity=Number(entry.type==='building' ? (entry.fillOpacity ?? entry.opacity ?? 1) : (entry.opacity ?? entry.fillOpacity ?? 1));
   const outlineOpacity=(Number(entry.outlineOpacity ?? 1) * Number(entry.opacity ?? 1));
   if(entry.type==='building'){
     const fillId=entry.layerIds.find(x=>map.getLayer(x) && map.getLayer(x).type==='fill-extrusion');
@@ -2033,6 +2045,7 @@ function applyActiveLayerStyle(skipLegend){
   entry.extrusionDefault=parseFloat(document.getElementById('extrusionDefault').value || (entry.type==='building'?6:0));
   entry.extrusionNormalize=!!document.getElementById('extrusionNormalize').checked;
   applyEntryStyle(entry, skipLegend);
+  syncOpacityUi(entry);
   clearStyleDirty('Style appliqué.');
 }
 function reapplyStoredLayerStyle(){ const entry=getCurrentStyleEntry(); if(!entry) return; applyEntryStyle(entry); clearStyleDirty('Style actualisé.'); }
@@ -2356,8 +2369,8 @@ function handleTableRowClick(rowEl, evt){ const fid=rowEl.getAttribute('data-fid
 function captureCurrentView(){ const target=document.getElementById('map'); if(window.html2canvas){ return html2canvas(target,{useCORS:true,backgroundColor:'#ffffff',logging:false,scale:2}); } return Promise.resolve(map.getCanvas()); }
 function exportMapImage(){ captureCurrentView().then(canvas=>{ const url=canvas.toDataURL('image/png'); downloadBlob((function(){ const bstr=atob(url.split(',')[1]); const len=bstr.length; const arr=new Uint8Array(len); for(let i=0;i<len;i++) arr[i]=bstr.charCodeAt(i); return new Blob([arr],{type:'image/png'}); })(),'carte.png'); }).catch(()=>{ try{ const url=map.getCanvas().toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download='carte.png'; a.click(); }catch(e){ alert('Export image impossible avec ce fond de carte.'); } }); }
 function exportMapPdf(){ captureCurrentView().then(canvas=>{ const { jsPDF } = window.jspdf; const pdf=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'}); const img=canvas.toDataURL('image/png'); const w=pdf.internal.pageSize.getWidth(); const h=pdf.internal.pageSize.getHeight(); const ratio=Math.min((w-30)/canvas.width,(h-30)/canvas.height); const dw=canvas.width*ratio, dh=canvas.height*ratio; pdf.addImage(img,'PNG',(w-dw)/2,(h-dh)/2,dw,dh); pdf.save('carte.pdf'); }).catch(()=>alert('Export PDF impossible avec ce fond de carte.')); }
-function buildProjectObject(){ const basemapLayer=(map.getStyle().layers||[]).find(l=>l.id==='basemap'); return {meta:{title:'Carte 3D des bâtiments',version:'1.4'},camera:{center:map.getCenter(),zoom:map.getZoom(),pitch:map.getPitch(),bearing:map.getBearing()},basemap:basemapLayer?.source||'voyager',layers:userLayers.map(u=>({name:u.name,type:u.type,visible:u.visible,opacity:u.opacity,fillOpacity:u.fillOpacity,color:u.color,colorField:u.colorField,heightFactor:u.heightFactor,extrusionEnabled:u.extrusionEnabled,extrusionField:u.extrusionField,extrusionMode:u.extrusionMode,extrusionFactor:u.extrusionFactor,extrusionMin:u.extrusionMin,extrusionMax:u.extrusionMax,extrusionDefault:u.extrusionDefault,extrusionNormalize:u.extrusionNormalize,styleField:u.styleField,numericField:u.numericField,renderMode:u.renderMode,lineWidth:u.lineWidth,showInLegend:u.showInLegend,filterExpression:u.filterExpression,geometryType:u.geometryType,popupFields:u.popupFields||[],popupConfig:u.popupConfig||null,legendUrl:u.legendUrl||'',remoteConfig:u.remoteConfig||null,data:u.data||null}))}; }
-function applySavedStateToEntry(entry,l){ entry.visible=l.visible; entry.opacity=l.opacity; entry.fillOpacity=(l.opacity ?? l.fillOpacity ?? 1); entry.color=l.color; entry.colorField=l.colorField||''; entry.heightFactor=l.heightFactor||1; entry.extrusionEnabled=l.extrusionEnabled ?? entry.extrusionEnabled; entry.extrusionField=l.extrusionField||''; entry.extrusionMode=l.extrusionMode||'auto'; entry.extrusionFactor=l.extrusionFactor||entry.heightFactor||1; entry.extrusionMin=Number.isFinite(Number(l.extrusionMin))?Number(l.extrusionMin):0; entry.extrusionMax=Number.isFinite(Number(l.extrusionMax))?Number(l.extrusionMax):120; entry.extrusionDefault=Number.isFinite(Number(l.extrusionDefault))?Number(l.extrusionDefault):(entry.type==='building'?6:0); entry.extrusionNormalize=!!l.extrusionNormalize; entry.styleField=l.styleField||''; entry.numericField=l.numericField||''; entry.renderMode=l.renderMode||'single'; entry.lineWidth=l.lineWidth||2; entry.showInLegend=l.showInLegend!==false; entry.filterExpression=l.filterExpression||''; entry.legendUrl=l.legendUrl||entry.legendUrl||''; entry.popupFields=Array.isArray(l.popupFields)?l.popupFields:[]; entry.popupConfig=l.popupConfig||entry.popupConfig||null; toggleEntryVisible(entry.id, l.visible); setEntryOpacity(entry.id, l.opacity); currentStyledLayerId=entry.id; refreshLayerStylePanel(); applyActiveLayerStyle(true); }
+function buildProjectObject(){ const basemapLayer=(map.getStyle().layers||[]).find(l=>l.id==='basemap'); return {meta:{title:'Carte 3D des bâtiments',version:'1.4'},camera:{center:map.getCenter(),zoom:map.getZoom(),pitch:map.getPitch(),bearing:map.getBearing()},basemap:basemapLayer?.source||'voyager',layers:userLayers.map(u=>({name:u.name,type:u.type,visible:u.visible,opacity:u.opacity,color:u.color,colorField:u.colorField,heightFactor:u.heightFactor,extrusionEnabled:u.extrusionEnabled,extrusionField:u.extrusionField,extrusionMode:u.extrusionMode,extrusionFactor:u.extrusionFactor,extrusionMin:u.extrusionMin,extrusionMax:u.extrusionMax,extrusionDefault:u.extrusionDefault,extrusionNormalize:u.extrusionNormalize,styleField:u.styleField,numericField:u.numericField,renderMode:u.renderMode,lineWidth:u.lineWidth,showInLegend:u.showInLegend,filterExpression:u.filterExpression,geometryType:u.geometryType,popupFields:u.popupFields||[],popupConfig:u.popupConfig||null,legendUrl:u.legendUrl||'',remoteConfig:u.remoteConfig||null,data:u.data||null}))}; }
+function applySavedStateToEntry(entry,l){ entry.visible=l.visible; entry.opacity=l.opacity; entry.color=l.color; entry.colorField=l.colorField||''; entry.heightFactor=l.heightFactor||1; entry.extrusionEnabled=l.extrusionEnabled ?? entry.extrusionEnabled; entry.extrusionField=l.extrusionField||''; entry.extrusionMode=l.extrusionMode||'auto'; entry.extrusionFactor=l.extrusionFactor||entry.heightFactor||1; entry.extrusionMin=Number.isFinite(Number(l.extrusionMin))?Number(l.extrusionMin):0; entry.extrusionMax=Number.isFinite(Number(l.extrusionMax))?Number(l.extrusionMax):120; entry.extrusionDefault=Number.isFinite(Number(l.extrusionDefault))?Number(l.extrusionDefault):(entry.type==='building'?6:0); entry.extrusionNormalize=!!l.extrusionNormalize; entry.styleField=l.styleField||''; entry.numericField=l.numericField||''; entry.renderMode=l.renderMode||'single'; entry.lineWidth=l.lineWidth||2; entry.showInLegend=l.showInLegend!==false; entry.filterExpression=l.filterExpression||''; entry.legendUrl=l.legendUrl||entry.legendUrl||''; entry.popupFields=Array.isArray(l.popupFields)?l.popupFields:[]; entry.popupConfig=l.popupConfig||entry.popupConfig||null; toggleEntryVisible(entry.id, l.visible); setEntryOpacity(entry.id, l.opacity); currentStyledLayerId=entry.id; refreshLayerStylePanel(); applyActiveLayerStyle(true); }
 function restoreProject(project){ if(project?.basemap) setBasemap(project.basemap); if(!project?.layers?.length) return; project.layers.forEach(l=>{ if(l.data){ addLayerEntry(l.data, l.name); const entry=userLayers[userLayers.length-1]; applySavedStateToEntry(entry,l); return; } if(l.remoteConfig?.template){ addRasterLayerFromTemplate(l.remoteConfig.template,l.name,l.remoteConfig.crs||'EPSG:3857',l.type||l.remoteConfig.type||'remote-tile', l.remoteConfig); const entry=userLayers[userLayers.length-1]; applySavedStateToEntry(entry,l); } }); if(project.camera){ map.jumpTo({center:[project.camera.center.lng, project.camera.center.lat], zoom:project.camera.zoom, pitch:project.camera.pitch, bearing:project.camera.bearing}); } }
 function addRasterLayerFromTemplate(template,name,crs='EPSG:3857',kind='remote-tile',remoteConfig=null){ const id='remote_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); const src=id+'_src'; map.addSource(src,{type:'raster',tiles:[template],tileSize:256}); map.addLayer({id,type:'raster',source:src}); userLayers.push({id,name,type:kind,visible:true,opacity:1,color:'#64748b',colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:false,extrusionField:'',extrusionMode:'auto',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',legendUrl:remoteConfig?.legendUrl||'',remoteConfig:remoteConfig||{type:kind,template,crs},sourceId:src,layerIds:[id],geometryType:'Raster',popupFields:[],popupConfig:null}); updateLayerManager(); updateLegend(); closePanels(); }
 async function addWmtsLayerFromCapabilities(url,name,layers,format='image/png'){ const txt = await fetch(url).then(r=>r.text()); const xml = new DOMParser().parseFromString(txt,'text/xml'); const layerNodes = [...xml.getElementsByTagNameNS('*','Layer')].filter(n=>n.parentNode && /Contents$/i.test(n.parentNode.nodeName)); if(!layerNodes.length) throw new Error('Aucune couche WMTS trouvée dans les capacités.'); let layerNode = null; if(layers){ layerNode = layerNodes.find(n => ([...n.getElementsByTagNameNS('*','Identifier')][0]?.textContent || '').trim()===layers); if(!layerNode) throw new Error('Couche WMTS introuvable dans GetCapabilities : '+layers); } else { layerNode = layerNodes[0]; layers = ([...layerNode.getElementsByTagNameNS('*','Identifier')][0]?.textContent || 'wmts').trim(); }
@@ -2405,12 +2418,17 @@ setTimeout(()=>{
 }, 0);
 
 map.on('load', ()=>{ initPanelResizers(); applyImportLockUI(); updateLayerManager(); updateLegend(); updateTable(); updateStats(); refreshSearchFields(); refreshStyleLayers(); refreshStatsLayerOptions(); ensureMeasureLayers(); if(EMBEDDED) restoreProject(EMBEDDED); buildQuickSearchIndex(); const basemapLayer=(map.getStyle().layers||[]).find(l=>l.id==='basemap'); updateBasemapAttribution(basemapLayer?.source||'positron'); setStatus('Conception Domofrance - Direction Valorisation du Patrimoine / sigdomofrance@domofrance.fr'); });
-
-function prepareStandaloneClone(lockImports){
-  if (lockImports === undefined) lockImports = false;
-  return document.documentElement.outerHTML;
+function prepareStandaloneClone(lockImports=false){
+  const project=buildProjectObject();
+  let html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  const payload=`<script>window.__SIGAF_EMBEDDED_PROJECT=${JSON.stringify(project)};window.__LOCK_IMPORTS__=${lockImports?'true':'false'};<\/script>`;
+  if(html.includes('</body>')){
+    html = html.replace('</body>', payload+'\n</body>');
+  } else {
+    html += payload;
+  }
+  return html;
 }
-
 function exportStandaloneHtml(lockImports=false){
   const blob=new Blob([prepareStandaloneClone(lockImports)],{type:'text/html'});
   downloadBlob(blob, lockImports?'carte_3d_des_batiments_figee.html':'carte_3d_des_batiments_export.html');
@@ -2675,7 +2693,7 @@ const streetViewImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAY
     const pointId = id + '_point';
     map.addLayer({ id:fillId, type:'fill', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Polygon'], paint:{'fill-color':'#2b7cff','fill-opacity':1} });
     map.addLayer({ id:lineId, type:'line', source:sourceId, minzoom:profile.minZoom, filter:['any',['==','$type','LineString'],['==','$type','Polygon']], paint:{'line-color':'#334155','line-width':1.3,'line-opacity':0.95} });
-    map.addLayer({ id:pointId, type:'circle', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Point'], paint:{'circle-radius':['interpolate',['linear'],['zoom'],profile.minZoom,2,19,5],'circle-color':'#2b7cff','circle-opacity':0.82,'circle-stroke-color':'#ffffff','circle-stroke-width':1} });
+    map.addLayer({ id:pointId, type:'circle', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Point'], paint:{'circle-radius':['interpolate',['linear'],['zoom'],profile.minZoom,2,19,5],'circle-color':'#2b7cff','circle-opacity':1,'circle-stroke-color':'#ffffff','circle-stroke-width':1} });
 
     const entry = {
       id, name, type:'wfs', crs:wfsSrs, visible:true, opacity:1,
@@ -3118,7 +3136,11 @@ function _refreshPopupSelectorWrap(){
   if(wrap) wrap.style.display=userLayers.filter(u=>u.data&&u.layerIds).length?'block':'none';
   renderPopupLayerSelector();
 }
+
 </script>
+
+
+
 
 <script id="catalog-patch-v9">
 (function(){
@@ -3591,7 +3613,7 @@ label[for="styleExpression"]{display:none !important;}
     const fieldExpr=['to-string',['coalesce',['get',cfg.field],'']];
     const anchorMap={center:'center',point:'center',line:'center', 'line-center':'center',inside:'center',outside:'top'};
     const textSize=cfg.autoZoom===false ? (cfg.size||12) : ['interpolate',['linear'],['zoom'],10,Math.max(10,(cfg.size||12)*0.75),16,cfg.size||12,20,Math.min(28,(cfg.size||12)*1.45)];
-    map.addLayer({id, type:'symbol', source:entry.sourceId, layout:{'text-field':fieldExpr,'text-size':textSize,'text-font':[cfg.font||'Open Sans Regular'],'text-anchor':anchorMap[cfg.placement]||'center','symbol-placement':(cfg.placement||'center').startsWith('line')?'line':'point','text-allow-overlap':!!cfg.overlap,'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']}, paint:{'text-color':cfg.color||'#1f2937','text-halo-width':0}}, undefined);
+    map.addLayer({id, type:'symbol', source:entry.sourceId, layout:{'text-field':fieldExpr,'text-size':textSize,'text-font':[cfg.font||'Open Sans Regular','Arial Unicode MS Regular'],'text-anchor':anchorMap[cfg.placement]||'center','symbol-placement':(cfg.placement||'center').startsWith('line')?'line':'point','text-allow-overlap':!!cfg.overlap,'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']}, paint:{'text-color':cfg.color||'#1f2937','text-halo-width':0}}, undefined);
   };
   window.saveLabelConfigPanel=function(){
     const entry=getEntry(window.currentLabelEntryId); if(!entry) return;
@@ -3988,59 +4010,199 @@ document.addEventListener('transitionend', (e)=>{
 })();
 </script>
 
-<!-- === LABELS PAR COUCHE (STABLE / ES5) === -->
-<script>
+<script id="auto-labels-patch-v2">
 (function(){
-  var wait=setInterval(function(){
-    if(window.map&&window.map.addLayer&&window.userLayers){clearInterval(wait);init();}
-  },100);
+  const map = window.map;
+  if(!map) return;
 
-  function init(){
-    for(var i=0;i<userLayers.length;i++){
-      if(!userLayers[i].labelConfig){
-        userLayers[i].labelConfig={enabled:false,field:'',size:11,color:'#111827'};
-      }
-    }
-
-    window.ensureLabelLayer=function(e){
-      if(!e||!e.labelConfig)return;
-      var id=e.id+'_label';
-      if(!e.labelConfig.enabled||!e.labelConfig.field){
-        if(map.getLayer(id))map.removeLayer(id);return;
-      }
-      if(map.getLayer(id))map.removeLayer(id);
-      map.addLayer({id:id,type:'symbol',source:e.sourceId,
-        layout:{'text-field':['to-string',['get',e.labelConfig.field]],'text-size':e.labelConfig.size,'text-offset':[0,0.6]},
-        paint:{'text-color':e.labelConfig.color,'text-halo-color':'#ffffff','text-halo-width':1}
-      });
-    };
-
-    if(window.applyEntryStyle){
-      var old=window.applyEntryStyle;
-      window.applyEntryStyle=function(e,s){old(e,s);ensureLabelLayer(e);};
-    }
-
-    var ui=setInterval(function(){
-      var host=document.querySelector('#settings .style-grid');
-      if(!host||document.getElementById('LBL_BOX'))return;
-      clearInterval(ui);
-      var d=document.createElement('div');d.id='LBL_BOX';d.className='style-card';
-      d.innerHTML='<div class="style-section-title">Étiquettes</div>'+
-        '<label>Champ</label><input id="LBL_FIELD">'+
-        '<label>Taille</label><input id="LBL_SIZE" type="number" value="11">'+
-        '<label>Couleur</label><input id="LBL_COLOR" type="color" value="#111827">'+
-        '<button id="LBL_APPLY">Appliquer</button>';
-      host.appendChild(d);
-      document.getElementById('LBL_APPLY').onclick=function(){
-        var e=getCurrentStyleEntry&&getCurrentStyleEntry();if(!e)return;
-        e.labelConfig.enabled=true;
-        e.labelConfig.field=document.getElementById('LBL_FIELD').value;
-        e.labelConfig.size=Number(document.getElementById('LBL_SIZE').value);
-        e.labelConfig.color=document.getElementById('LBL_COLOR').value;
-        ensureLabelLayer(e);
-      };
-    },200);
+  function getEntryById(id){
+    return (Array.isArray(window.userLayers) ? window.userLayers : []).find(e => e.id === id) || null;
   }
+
+  function labelLayerId(entry){ return entry ? (entry.id + '_labels') : ''; }
+
+  function guessAutoLabelField(entry){
+    if(!entry || !entry.data?.features?.length) return '';
+    const props = (entry.data.features[0] || {}).properties || {};
+    const keys = (typeof filteredPropertyKeys === 'function' ? filteredPropertyKeys(props) : Object.keys(props || {})).filter(Boolean);
+    if(!keys.length) return '';
+    const preferred = [
+      /^(nom|name)$/i,
+      /libelle|libellé|label|titre|title/i,
+      /adresse|address|rue|voie/i,
+      /commune|ville|city/i,
+      /residence|résidence|site/i,
+      /parcelle|idpar|refcad|reference|référence/i,
+      /code|numero|numéro|id/i
+    ];
+    for(const rx of preferred){
+      const match = keys.find(k => rx.test(String(k || '')) && (entry.data.features || []).some(f => {
+        const v = f?.properties?.[k];
+        return v !== null && v !== undefined && String(v).trim() !== '';
+      }));
+      if(match) return match;
+    }
+    const fallback = keys.find(k => (entry.data.features || []).some(f => {
+      const v = f?.properties?.[k];
+      if(v === null || v === undefined) return false;
+      const s = String(v).trim();
+      return s && isNaN(Number(s));
+    }));
+    return fallback || keys[0] || '';
+  }
+
+  function getAutoLabelDefaults(entry){
+    const geom = String(entry?.geometryType || '').toLowerCase();
+    const count = Number(entry?.data?.features?.length || 0);
+    const isPoint = geom.includes('point');
+    const isLine = geom.includes('line');
+    const placement = isLine ? 'line' : (isPoint ? 'point' : 'center');
+    let minzoom = 13;
+    if(count > 5000) minzoom = 16;
+    else if(count > 2000) minzoom = 15;
+    else if(count > 700) minzoom = 14;
+    else if(count > 150) minzoom = 13;
+    else minzoom = 12;
+    if(isPoint) minzoom = Math.max(minzoom, 12);
+    if(entry?.type === 'parcel') minzoom = Math.max(minzoom, 14);
+    if(entry?.type === 'building') minzoom = Math.max(minzoom, 14);
+    return {
+      field: guessAutoLabelField(entry),
+      font: 'Open Sans Regular',
+      size: isPoint ? 12 : 11,
+      color: '#1f2937',
+      placement,
+      overlap: false,
+      autoZoom: true,
+      minzoom
+    };
+  }
+
+  function applyAutoLabelConfig(entry, force){
+    if(!entry || !entry.sourceId || !entry.data?.features?.length) return;
+    const current = entry.labelConfig && typeof entry.labelConfig === 'object' ? entry.labelConfig : {};
+    const currentField = String(current.field || '').trim();
+    if(currentField && !force) return;
+    const defs = getAutoLabelDefaults(entry);
+    if(!defs.field) return;
+    entry.labelConfig = Object.assign({}, defs, current, { field: currentField || defs.field, minzoom: Number(current.minzoom || defs.minzoom) });
+  }
+
+  const originalEnsureLabelLayer = window.ensureLabelLayer;
+  window.ensureLabelLayer = function(entry){
+    if(!entry || !entry.sourceId) return;
+    applyAutoLabelConfig(entry, false);
+    const id = labelLayerId(entry);
+    if(map.getLayer(id)){
+      try{ map.removeLayer(id); }catch(e){}
+    }
+    const cfg = entry.labelConfig || {};
+    if(!cfg.field) return;
+    const fieldExpr = ['to-string', ['coalesce', ['get', cfg.field], '']];
+    const anchorMap = {center:'center',point:'center',line:'center','line-center':'center',inside:'center',outside:'top'};
+    const textSize = cfg.autoZoom===false
+      ? (cfg.size || 12)
+      : ['interpolate',['linear'],['zoom'],Math.max(0, Number(cfg.minzoom || 12)-1),Math.max(10,(cfg.size||12)*0.82),Math.max(12, Number(cfg.minzoom || 12)+2),cfg.size||12,20,Math.min(28,(cfg.size||12)*1.45)];
+    try{
+      map.addLayer({
+        id,
+        type:'symbol',
+        source:entry.sourceId,
+        minzoom:Number(cfg.minzoom || 12),
+        layout:{
+          'text-field':fieldExpr,
+          'text-size':textSize,
+          'text-font':[cfg.font || 'Open Sans Regular','Arial Unicode MS Regular'],
+          'text-anchor':anchorMap[cfg.placement] || 'center',
+          'symbol-placement': String(cfg.placement || 'center').startsWith('line') ? 'line' : 'point',
+          'text-allow-overlap': !!cfg.overlap,
+          'text-ignore-placement': false,
+          'symbol-sort-key': ['coalesce',['get','__sort'],0],
+          'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']
+        },
+        paint:{
+          'text-color': cfg.color || '#1f2937',
+          'text-halo-color': 'rgba(255,255,255,0.92)',
+          'text-halo-width': 1.2,
+          'text-halo-blur': 0.4
+        }
+      });
+      try{ map.moveLayer(id); }catch(e){}
+      map.setLayoutProperty(id, 'visibility', entry.visible === false ? 'none' : 'visible');
+    }catch(e){
+      console.warn('ensureLabelLayer auto patch error', e);
+    }
+  };
+
+  const oldAddLayerEntry = window.addLayerEntry;
+  if(typeof oldAddLayerEntry === 'function'){
+    window.addLayerEntry = function(fc, name){
+      const result = oldAddLayerEntry.apply(this, arguments);
+      try{
+        const layers = Array.isArray(window.userLayers) ? window.userLayers : [];
+        const entry = layers[layers.length - 1] || null;
+        if(entry){
+          applyAutoLabelConfig(entry, true);
+          window.ensureLabelLayer(entry);
+        }
+      }catch(e){}
+      return result;
+    };
+  }
+
+  const oldToggleEntryVisible = window.toggleEntryVisible;
+  if(typeof oldToggleEntryVisible === 'function'){
+    window.toggleEntryVisible = function(id, visible){
+      const out = oldToggleEntryVisible.apply(this, arguments);
+      try{
+        const entry = getEntryById(id);
+        const lid = labelLayerId(entry);
+        if(entry && map.getLayer(lid)) map.setLayoutProperty(lid, 'visibility', visible ? 'visible' : 'none');
+      }catch(e){}
+      return out;
+    };
+  }
+
+  const oldApplyEntryStyle = window.applyEntryStyle;
+  if(typeof oldApplyEntryStyle === 'function'){
+    window.applyEntryStyle = function(entry, skipLegend){
+      const out = oldApplyEntryStyle.apply(this, arguments);
+      try{
+        if(entry && entry.data?.features?.length){
+          applyAutoLabelConfig(entry, false);
+          window.ensureLabelLayer(entry);
+        }
+      }catch(e){}
+      return out;
+    };
+  }
+
+  const oldRemoveEntry = window.removeEntry;
+  if(typeof oldRemoveEntry === 'function'){
+    window.removeEntry = function(id){
+      try{
+        const entry = getEntryById(id);
+        const lid = labelLayerId(entry);
+        if(lid && map.getLayer(lid)) map.removeLayer(lid);
+      }catch(e){}
+      return oldRemoveEntry.apply(this, arguments);
+    };
+  }
+
+  function refreshAllAutoLabels(){
+    try{
+      (Array.isArray(window.userLayers) ? window.userLayers : []).forEach(entry => {
+        if(!entry?.sourceId || !entry?.data?.features?.length) return;
+        applyAutoLabelConfig(entry, false);
+        window.ensureLabelLayer(entry);
+      });
+    }catch(e){}
+  }
+
+  window.refreshAllAutoLabels = refreshAllAutoLabels;
+
+  if(map.loaded()) refreshAllAutoLabels();
+  else map.on('load', refreshAllAutoLabels);
 })();
 </script>
 
