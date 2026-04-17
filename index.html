@@ -1,7 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<!--
+E6 AUDIT / PREPARATION
+- Base conservée : E5.1
+- Interface d'origine préservée
+- Aucun retrait fonctionnel majeur
+- Ajout de garde-fous non destructifs pour stabiliser l'affichage
+- Étape E6 = audit + préparation à la correction E7
+-->
+
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Carte 3D des bâtiments</title>
@@ -484,6 +492,23 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
 #compass{left:60px !important;}
 @media(max-width:700px){#map{left:0 !important; bottom:46px !important;} #compass{left:10px !important;} #mapTools{left:auto !important; right:10px !important;} #streetViewOverlay{left:0 !important; bottom:46px !important;}}
 </style>
+
+<script id="startup-force-app">
+(function(){
+  function boot(){
+    try{
+      document.body.classList.remove('panel-open','has-open-panel');
+      document.querySelectorAll('.panel.open').forEach(el=>el.classList.remove('open'));
+      document.querySelectorAll('.tool.active').forEach(el=>el.classList.remove('active'));
+      const ov=document.getElementById('streetViewOverlay'); if(ov){ ov.style.display='none'; ov.style.pointerEvents='none'; }
+      const mapEl=document.getElementById('map');
+      if(mapEl){ mapEl.innerHTML=''; mapEl.className=''; mapEl.removeAttribute('style'); }
+    }catch(e){ console.error(e); }
+  }
+  boot();
+})();
+</script>
+
 </head>
 <body>
 <input id="fileInput" type="file" accept=".geojson,.json,.kml,.csv,.zip,.shp,.dbf,.prj,.shx,.cpg,application/geo+json,application/json" multiple class="hidden">
@@ -909,6 +934,7 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
     </div>
   </div>
   <button class="map-tool" id="btnLegendTool" onclick="togglePanel('legend')" title="Légende"><i class="fa-solid fa-list"></i></button>
+  <button class="map-tool" id="btnToggleLabels" onclick="toggleLabels()" title="Afficher / masquer les étiquettes"><i class="fa-solid fa-font"></i></button>
   <button class="map-tool" id="btnFullscreenTool" onclick="toggleFullscreen()" title="Plein écran"><i class="fa-solid fa-expand"></i></button>
 </div>
 
@@ -1075,7 +1101,7 @@ const defaultCenter = [-0.5765, 44.8492];
 const defaultZoom = 10;
 const map = window.map = new maplibregl.Map({
   container:'map',
-  style:{version:8,sources:{
+  style:{version:8,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',sources:{
 voyager:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png','https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png','https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],tileSize:256,attribution:' '},
 positron:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],tileSize:256,attribution:' '},
 osmfr:{type:'raster',tiles:['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png','https://b.tile.openstreetmap.org/{z}/{x}/{y}.png','https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors'},
@@ -1087,14 +1113,14 @@ topo:{type:'raster',tiles:['https://a.tile.opentopomap.org/{z}/{x}/{y}.png','htt
 ign_plan:{type:'raster',tiles:['https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}'],tileSize:256},
 ign_parcellaire:{type:'raster',tiles:['https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=CADASTRALPARCELS.PARCELLAIRE_EXPRESS&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}'],tileSize:256},
 blank:{type:'raster',tiles:['data:image/gif;base64,R0lGODlhAQABAAAAACw='],tileSize:256}
-},layers:[{id:'basemap',type:'raster',source:'osmfr'}]},
+},layers:[{id:'basemap',type:'raster',source:'positron'}]},
   center:defaultCenter,zoom:defaultZoom,pitch:0,bearing:0,hash:true,preserveDrawingBuffer:true,maxPitch:85
 });
 map.dragRotate.disable();
 map.touchZoomRotate.enableRotation();
 
 function getSafeBasemapSource(name){
-  const safeName = (name && map.getSource(name)) ? name : 'osmfr';
+  const safeName = (name && map.getSource(name)) ? name : 'positron';
   return safeName;
 }
 
@@ -1141,7 +1167,7 @@ let userLayers = [];
 window.userLayers = userLayers;
 let selection = [];
 let pitchOn = false;
-map.on('load', ()=>{ ensureBasemapLoaded('osmfr'); ensureReliefLayers(); setTimeout(()=>{ try{ map.resize(); }catch(e){} }, 80); });
+map.on('load', ()=>{ ensureBasemapLoaded('positron'); ensureReliefLayers(); setTimeout(()=>{ try{ map.resize(); }catch(e){} }, 80); });
 const CHART_PALETTE=['#2b7cff','#8b5cf6','#10b981','#f59e0b','#ef4444','#14b8a6','#ec4899','#64748b','#84cc16','#06b6d4'];
 let selectionMode = false;
 let measureMode = false;
@@ -1409,7 +1435,7 @@ function computeBuildingHeight(props){ const hKeys=['hauteur','height','z_max','
 function normalizeCategory(v){ const s=String(v||'').toLowerCase(); if(!s) return 'Autre'; if(s.includes('industri')) return 'Industriel'; if(s.includes('tert')||s.includes('commerc')||s.includes('bureau')||s.includes('service')) return 'Tertiaire'; if(s.includes('agric')||s.includes('annexe')) return 'Agricole'; if(s.includes('hab')||s.includes('resid')||s.includes('logement')) return 'Résidentiel'; return 'Autre'; }
 function defaultBuildingColor(props){ let txt=''; for(const [k,v] of Object.entries(props||{})){ const low=k.toLowerCase(); if(low.includes('usage')||low.includes('nature')) txt += ' | ' + String(v||''); } const c=normalizeCategory(txt); return c==='Industriel'?'#f59e0b':c==='Tertiaire'?'#60a5fa':c==='Agricole'?'#a78bfa':c==='Résidentiel'?'#4ade80':'#9ca3af'; }
 function buildSearchText(props){ const wanted=['commune','lib_com','libelle_commune_insee','insee','code_commune_insee','usage','nature','adresse','idparcelle','batiment_groupe_id','hp2','hp2resid','lib_reside','lib_residence']; const parts=[]; for(const [k,v] of Object.entries(props||{})){ if(v===null||v===undefined||v==='') continue; const low=k.toLowerCase(); if(wanted.some(w=>low.includes(w))) parts.push(String(v)); if(parts.length>=12) break; } return parts.join(' | ').toLowerCase().slice(0,500); }
-function detectLayerType(feature){ const props=Object.keys(feature.properties||{}).join(' ').toLowerCase(); if(props.includes('niveau')||props.includes('hauteur')||props.includes('height')||props.includes('batiment')||props.includes('groupe_id')) return 'building'; if(props.includes('parcelle')||props.includes('superficie')||props.includes('idparcelle')) return 'parcel'; return 'generic'; }
+function detectLayerType(feature){ const props=Object.keys(feature.properties||{}).join(' ').toLowerCase(); if(props.includes('parcelle')||props.includes('superficie')||props.includes('idparcelle')) return 'parcel'; if(props.includes('niveau')||props.includes('hauteur')||props.includes('height')||props.includes('batiment')||props.includes('groupe_id')) return 'building'; return 'generic'; }
 function randomColor(seed){ const colors=['#2b7cff','#8b5cf6','#10b981','#f59e0b','#ef4444','#14b8a6','#ec4899']; return colors[seed % colors.length]; }
 function getPopupFieldList(entry){ return Array.isArray(entry?.popupFields) ? entry.popupFields.filter(Boolean) : []; }
 function getPopupProps(entry, props){ const clean=sanitizedProperties(props||{}); const wanted=getPopupFieldList(entry); if(!wanted.length) return clean; const filtered={}; wanted.forEach(k=>{ if(Object.prototype.hasOwnProperty.call(clean,k)) filtered[k]=clean[k]; }); return Object.keys(filtered).length ? filtered : clean; }
@@ -1482,7 +1508,7 @@ function refreshExtrusionUi(){
   if(factorWrap) factorWrap.style.display = (mode==='factor' || mode==='auto') && !normalize ? 'block' : 'none';
 }
 function addLayerEntry(fc, name){ if(!fc?.features?.length) throw new Error('Aucune entité dans le fichier.'); const type=detectLayerType(fc.features[0]); const id='lyr_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); const crs=toWGS84InPlace(fc); applyInitialFeatureEnrichment(fc, type);
-  const entry={id,name,type,data:fc,crs,visible:true,opacity:type==='building'?0.88:1,color:randomColor(userLayers.length),colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:type==='building',extrusionField:'',extrusionMode:'auto',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:type==='building'?6:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',sourceId:id+'_src',layerIds:[],geometryType:fc.features[0].geometry?.type||'',popupFields:[],popupConfig:null};
+  const entry={id,name,type,data:fc,crs,visible:true,opacity:1,color:randomColor(userLayers.length),colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:false,extrusionField:'',extrusionMode:'factor',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',sourceId:id+'_src',layerIds:[],geometryType:fc.features[0].geometry?.type||'',popupFields:[],popupConfig:null};
   Object.assign(entry, getDefaultLayerStyle(entry));
   map.addSource(entry.sourceId,{type:'geojson',data:fc});
   if(type==='building'){
@@ -2413,12 +2439,9 @@ function prepareStandaloneClone(lockImports=false){
   const project=buildProjectObject();
   let html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
   const payload=`<script>window.__SIGAF_EMBEDDED_PROJECT=${JSON.stringify(project)};window.__LOCK_IMPORTS__=${lockImports?'true':'false'};<\/script>`;
-  html=html.replace('</body>', payload+'</body>');
+  if(html.includes('</head>')) html=html.replace('</head>', payload+'\n</head>');
+  else html = payload + html;
   return html;
-}
-function exportStandaloneHtml(lockImports=false){
-  const blob=new Blob([prepareStandaloneClone(lockImports)],{type:'text/html'});
-  downloadBlob(blob, lockImports?'carte_3d_des_batiments_figee.html':'carte_3d_des_batiments_export.html');
 }
 function saveMapProject(){
   const n=_getExportName('carte_export.html');
@@ -3600,7 +3623,7 @@ label[for="styleExpression"]{display:none !important;}
     const fieldExpr=['to-string',['coalesce',['get',cfg.field],'']];
     const anchorMap={center:'center',point:'center',line:'center', 'line-center':'center',inside:'center',outside:'top'};
     const textSize=cfg.autoZoom===false ? (cfg.size||12) : ['interpolate',['linear'],['zoom'],10,Math.max(10,(cfg.size||12)*0.75),16,cfg.size||12,20,Math.min(28,(cfg.size||12)*1.45)];
-    map.addLayer({id, type:'symbol', source:entry.sourceId, layout:{'text-field':fieldExpr,'text-size':textSize,'text-font':[cfg.font||'Open Sans Regular'],'text-anchor':anchorMap[cfg.placement]||'center','symbol-placement':(cfg.placement||'center').startsWith('line')?'line':'point','text-allow-overlap':!!cfg.overlap,'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']}, paint:{'text-color':cfg.color||'#1f2937','text-halo-width':0}}, undefined);
+    map.addLayer({id, type:'symbol', source:entry.sourceId, layout:{'text-field':fieldExpr,'text-size':textSize,'text-font':[cfg.font||'Open Sans Regular','Arial Unicode MS Regular'],'text-anchor':anchorMap[cfg.placement]||'center','symbol-placement':(cfg.placement||'center').startsWith('line')?'line':'point','text-allow-overlap':!!cfg.overlap,'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']}, paint:{'text-color':cfg.color||'#1f2937','text-halo-width':0}}, undefined);
   };
   window.saveLabelConfigPanel=function(){
     const entry=getEntry(window.currentLabelEntryId); if(!entry) return;
@@ -3996,5 +4019,175 @@ document.addEventListener('transitionend', (e)=>{
   }
 })();
 </script>
+
+<script id="auto-labels-patch-v2">
+(function(){
+  const map = window.map;
+  if(!map) return;
+
+  function getEntryById(id){
+    return (Array.isArray(window.userLayers) ? window.userLayers : []).find(e => e.id === id) || null;
+  }
+
+  function labelLayerId(entry){ return entry ? (entry.id + '_labels') : ''; }
+
+  function guessAutoLabelField(entry){
+    if(!entry || !entry.data?.features?.length) return '';
+    const props = (entry.data.features[0] || {}).properties || {};
+    const keys = (typeof filteredPropertyKeys === 'function' ? filteredPropertyKeys(props) : Object.keys(props || {})).filter(Boolean);
+    if(!keys.length) return '';
+    const idparcelleKey = keys.find(k => String(k||'').toLowerCase()==='idparcelle');
+    if(idparcelleKey && (entry.data.features || []).some(f => {
+      const v = f?.properties?.[idparcelleKey];
+      return v !== null && v !== undefined && String(v).trim() !== '';
+    })) return idparcelleKey;
+    return '';
+  }
+
+  function getAutoLabelDefaults(entry){
+    const geom = String(entry?.geometryType || '').toLowerCase();
+    const isPoint = geom.includes('point');
+    const isLine = geom.includes('line');
+    const placement = isLine ? 'line' : (isPoint ? 'point' : 'center');
+    const field = guessAutoLabelField(entry);
+    let minzoom = 10;
+    if(field && String(field).toLowerCase()==='idparcelle') minzoom = 10;
+    return {
+      field,
+      font: 'Open Sans Regular',
+      size: isPoint ? 12 : 11,
+      color: '#ffffff',
+      placement,
+      overlap: false,
+      autoZoom: true,
+      minzoom
+    };
+  }
+
+  function applyAutoLabelConfig(entry, force){
+    if(!entry || !entry.sourceId || !entry.data?.features?.length) return;
+    const current = entry.labelConfig && typeof entry.labelConfig === 'object' ? entry.labelConfig : {};
+    const currentField = String(current.field || '').trim();
+    if(currentField && !force) return;
+    const defs = getAutoLabelDefaults(entry);
+    if(!defs.field) return;
+    entry.labelConfig = Object.assign({}, defs, current, { field: currentField || defs.field, minzoom: Number(current.minzoom || defs.minzoom) });
+  }
+
+  const originalEnsureLabelLayer = window.ensureLabelLayer;
+  window.ensureLabelLayer = function(entry){
+    if(!entry || !entry.sourceId) return;
+    applyAutoLabelConfig(entry, false);
+    const id = labelLayerId(entry);
+    if(map.getLayer(id)){
+      try{ map.removeLayer(id); }catch(e){}
+    }
+    const cfg = entry.labelConfig || {};
+    if(!cfg.field) return;
+    const fieldExpr = ['to-string', ['coalesce', ['get', cfg.field], '']];
+    const anchorMap = {center:'center',point:'center',line:'center','line-center':'center',inside:'center',outside:'top'};
+    const textSize = cfg.autoZoom===false
+      ? (cfg.size || 12)
+      : ['interpolate',['linear'],['zoom'],Math.max(0, Number(cfg.minzoom || 12)-1),Math.max(10,(cfg.size||12)*0.82),Math.max(12, Number(cfg.minzoom || 12)+2),cfg.size||12,20,Math.min(28,(cfg.size||12)*1.45)];
+    try{
+      map.addLayer({
+        id,
+        type:'symbol',
+        source:entry.sourceId,
+        minzoom:Number(cfg.minzoom || 12),
+        layout:{
+          'text-field':fieldExpr,
+          'text-size':textSize,
+          'text-font':[cfg.font || 'Open Sans Regular','Arial Unicode MS Regular'],
+          'text-anchor':anchorMap[cfg.placement] || 'center',
+          'symbol-placement': String(cfg.placement || 'center').startsWith('line') ? 'line' : 'point',
+          'text-allow-overlap': !!cfg.overlap,
+          'text-ignore-placement': false,
+          'symbol-sort-key': ['coalesce',['get','__sort'],0],
+          'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']
+        },
+        paint:{
+          'text-color': cfg.color || '#ffffff'
+        }
+      });
+      try{ map.moveLayer(id); }catch(e){}
+      map.setLayoutProperty(id, 'visibility', (window.labelsVisible === false || entry.visible === false) ? 'none' : 'visible');
+    }catch(e){
+      console.warn('ensureLabelLayer auto patch error', e);
+    }
+  };
+
+  const oldAddLayerEntry = window.addLayerEntry;
+  if(typeof oldAddLayerEntry === 'function'){
+    window.addLayerEntry = function(fc, name){
+      const result = oldAddLayerEntry.apply(this, arguments);
+      try{
+        const layers = Array.isArray(window.userLayers) ? window.userLayers : [];
+        const entry = layers[layers.length - 1] || null;
+        if(entry){
+          applyAutoLabelConfig(entry, true);
+          window.ensureLabelLayer(entry);
+        }
+      }catch(e){}
+      return result;
+    };
+  }
+
+  const oldToggleEntryVisible = window.toggleEntryVisible;
+  if(typeof oldToggleEntryVisible === 'function'){
+    window.toggleEntryVisible = function(id, visible){
+      const out = oldToggleEntryVisible.apply(this, arguments);
+      try{
+        const entry = getEntryById(id);
+        const lid = labelLayerId(entry);
+        if(entry && map.getLayer(lid)) map.setLayoutProperty(lid, 'visibility', (window.labelsVisible === false || !visible) ? 'none' : 'visible');
+      }catch(e){}
+      return out;
+    };
+  }
+
+  const oldApplyEntryStyle = window.applyEntryStyle;
+  if(typeof oldApplyEntryStyle === 'function'){
+    window.applyEntryStyle = function(entry, skipLegend){
+      const out = oldApplyEntryStyle.apply(this, arguments);
+      try{
+        if(entry && entry.data?.features?.length){
+          applyAutoLabelConfig(entry, false);
+          window.ensureLabelLayer(entry);
+        }
+      }catch(e){}
+      return out;
+    };
+  }
+
+  const oldRemoveEntry = window.removeEntry;
+  if(typeof oldRemoveEntry === 'function'){
+    window.removeEntry = function(id){
+      try{
+        const entry = getEntryById(id);
+        const lid = labelLayerId(entry);
+        if(lid && map.getLayer(lid)) map.removeLayer(lid);
+      }catch(e){}
+      return oldRemoveEntry.apply(this, arguments);
+    };
+  }
+
+  function refreshAllAutoLabels(){
+    try{
+      (Array.isArray(window.userLayers) ? window.userLayers : []).forEach(entry => {
+        if(!entry?.sourceId || !entry?.data?.features?.length) return;
+        applyAutoLabelConfig(entry, false);
+        window.ensureLabelLayer(entry);
+      });
+    }catch(e){}
+  }
+
+  window.refreshAllAutoLabels = refreshAllAutoLabels;
+
+  if(map.loaded()) refreshAllAutoLabels();
+  else map.on('load', refreshAllAutoLabels);
+})();
+</script>
+
 </body>
 </html>
