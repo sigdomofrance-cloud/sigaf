@@ -3439,83 +3439,6 @@ async function fetchWfsPage(baseUrl, version, typeNames, bboxParam, pageSize, ma
   else bindOnce();
 })();
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div id="labelConfigOverlay" class="label-config-overlay" aria-hidden="true">
-  <div class="label-config-dialog" role="dialog" aria-modal="true" aria-labelledby="labelConfigTitle">
-    <div class="popup-config-header">
-      <div><div id="labelConfigTitle" class="popup-config-title">Configurer étiquettes</div><div class="popup-config-subtitle">Choix du champ et style des labels</div></div>
-      <button class="popup-config-close" type="button" onclick="closeLabelConfigPanel()">×</button>
-    </div>
-    <div class="label-grid">
-      <div class="label-section">
-        <h4 style="margin:0 0 8px 0">Attribut</h4>
-        <label class="small">Champ affiché</label>
-        <select id="labelFieldSelect"></select>
-        <div class="label-placement-help">Le champ choisi sera affiché sur la carte pour cette couche.</div>
-        <h4 style="margin:14px 0 8px 0">Style</h4>
-        <div class="style-row">
-          <div><label class="small">Police</label><select id="labelFontFamily"><option value="Open Sans Regular">Open Sans</option><option value="Arial Unicode MS Regular">Arial</option><option value="Noto Sans Regular">Noto Sans</option></select></div>
-          <div><label class="small">Taille</label><select id="labelFontSize"><option value="10">10 px</option><option value="11">11 px</option><option value="12">12 px</option><option value="14">14 px</option><option value="16">16 px</option><option value="18">18 px</option></select></div>
-        </div>
-        <div class="style-row" style="margin-top:10px">
-          <div><label class="small">Couleur</label><input id="labelColor" type="color" value="#1f2937"></div>
-          <div><label class="small">Halo</label><input id="labelHaloColor" type="color" value="#ffffff"></div>
-        </div>
-        <div class="style-row" style="margin-top:10px">
-          <div><label class="small">Placement</label><select id="labelPlacement"><option value="center">Centré</option><option value="point">Point</option><option value="line">Ligne</option><option value="line-center">Ligne centrée</option><option value="inside">Intérieur</option><option value="outside">Extérieur</option></select></div>
-          <div><label class="small">Superposition</label><select id="labelOverlap"><option value="false">Éviter les chevauchements</option><option value="true">Autoriser</option></select></div>
-        </div>
-      </div>
-      <div class="label-section">
-        <h4 style="margin:0 0 8px 0">Aperçu</h4>
-        <div id="labelConfigPreview" class="label-preview"></div>
-      </div>
-    </div>
-    <div class="label-actions"><button type="button" onclick="closeLabelConfigPanel()">Annuler</button><button type="button" onclick="saveLabelConfigPanel()"><i class="fa-solid fa-check"></i> Enregistrer</button></div>
-  </div>
-</div>
-<div id="thematicConfigOverlay" class="thematic-config-overlay" aria-hidden="true">
-  <div class="thematic-config-dialog" role="dialog" aria-modal="true" aria-labelledby="thematicConfigTitle">
-    <div class="popup-config-header">
-      <div><div id="thematicConfigTitle" class="popup-config-title">Analyse thématique</div><div class="popup-config-subtitle">Classification, palette et contour</div></div>
-      <button class="popup-config-close" type="button" onclick="closeThematicConfigPanel()">×</button>
-    </div>
-    <div class="thematic-grid">
-      <div class="thematic-section">
-        <div class="style-row">
-          <div><label class="small">Méthode</label><select id="thematicMethod"><option value="categorical">Catégories</option><option value="quantile">Quantiles</option></select></div>
-          <div><label class="small">Classes</label><select id="thematicClassCount"><option>3</option><option selected>5</option><option>7</option></select></div>
-        </div>
-        <div class="style-row" style="margin-top:10px">
-          <div><label class="small">Couleur contour</label><input id="thematicOutlineColor" type="color" value="#334155"></div>
-          <div><label class="small">Épaisseur contour</label><input id="thematicOutlineWidth" type="range" min="0" max="6" step="0.5" value="1.5"></div>
-        </div>
-        <div class="small" style="margin-top:10px">Palette</div>
-        <div id="thematicPaletteSwatches" class="thematic-swatches"></div>
-      </div>
-      <div class="thematic-section"><h4 style="margin:0 0 8px 0">Aperçu</h4><div id="thematicPreview" class="thematic-preview"></div></div>
-    </div>
-    <div class="thematic-actions"><button type="button" onclick="closeThematicConfigPanel()">Annuler</button><button type="button" onclick="saveThematicConfigPanel()"><i class="fa-solid fa-check"></i> Appliquer</button></div>
-  </div>
-</div>
-
-
-
-
-
 <style id="v2-final-adjustments">
 #numericFieldWrap, #styleExpression{display:none !important;}
 #styleExpression{display:none !important;}
@@ -3543,18 +3466,8 @@ label[for="styleExpression"]{display:none !important;}
     const extrusion=document.getElementById('extrusionControls');
     if(host && extrusion && !host.contains(extrusion)) host.appendChild(extrusion);
   }
-  function rebuildLabelDialog(){
-    const haloWrap=document.getElementById('labelHaloColor')?.closest('div');
-    if(haloWrap) haloWrap.style.display='none';
-    const overlapWrap=document.getElementById('labelOverlap')?.closest('div');
-    if(overlapWrap && !document.getElementById('labelAutoZoom')){
-      const row=overlapWrap.parentElement;
-      const auto=document.createElement('div');
-      auto.innerHTML='<label class="small">Police selon zoom</label><select id="labelAutoZoom"><option value="true">Automatique</option><option value="false">Fixe</option></select>';
-      row.appendChild(auto);
-    }
-  }
-  window.updatePitchDisplay=function(v){ const n=Number(v||0); const out=document.getElementById('pitch3dValue'); if(out) out.textContent=String(n); try{ map.easeTo({pitch:n,duration:80}); }catch(e){} };
+
+ window.updatePitchDisplay=function(v){ const n=Number(v||0); const out=document.getElementById('pitch3dValue'); if(out) out.textContent=String(n); try{ map.easeTo({pitch:n,duration:80}); }catch(e){} };
   window.setPitchPreset=function(v){ const r=document.getElementById('pitch3dRange'); if(r){ r.value=String(v); } updatePitchDisplay(v); };
   window.toggleManagedBuildings3D=function(on){ if(on){ setBasemap3dBuildings('osm3d'); } else { try{ _removeBuildings3dLayers(); }catch(e){} window.__current3dBldgMode=null; const cb=document.getElementById('buildings3dEnabled'); if(cb) cb.checked=false; } };
   const oldRefresh=window.refreshLayerStyleUi;
@@ -3590,47 +3503,7 @@ label[for="styleExpression"]{display:none !important;}
       if(entry && typeof openThematicConfigPanel==='function') openThematicConfigPanel(entry.id);
     }
   });
-  window.openLabelConfigPanel=function(id){
-    const entry=getEntry(id); if(!entry) return;
-    window.currentLabelEntryId=id;
-    const cfg=Object.assign({field:'',font:'Open Sans Regular',size:12,color:'#1f2937',placement:'center',overlap:false,autoZoom:true}, entry.labelConfig||{});
-    const fields=(typeof filteredPropertyKeys==='function')?filteredPropertyKeys((entry.data?.features?.[0]||{}).properties||{}):Object.keys((entry.data?.features?.[0]||{}).properties||{});
-    const sel=document.getElementById('labelFieldSelect');
-    if(sel) sel.innerHTML='<option value="">Aucune étiquette</option>'+fields.map(f=>`<option value="${f}">${f}</option>`).join('');
-    if(sel) sel.value=cfg.field||'';
-    document.getElementById('labelFontFamily').value=cfg.font;
-    document.getElementById('labelFontSize').value=String(cfg.size||12);
-    document.getElementById('labelColor').value=cfg.color||'#1f2937';
-    const az=document.getElementById('labelAutoZoom'); if(az) az.value=String(cfg.autoZoom!==false);
-    document.getElementById('labelPlacement').value=cfg.placement||'center';
-    document.getElementById('labelOverlap').value=String(!!cfg.overlap);
-    document.getElementById('labelConfigOverlay').classList.add('open');
-    window.renderLabelPreview();
-  };
-  window.renderLabelPreview=function(){
-    const entry=getEntry(window.currentLabelEntryId); const box=document.getElementById('labelConfigPreview'); if(!entry||!box) return;
-    const font=document.getElementById('labelFontFamily').value; const size=Number(document.getElementById('labelFontSize').value||12); const color=document.getElementById('labelColor').value;
-    const field=document.getElementById('labelFieldSelect').value;
-    const sample=field ? String((entry.data?.features?.[0]?.properties||{})[field] ?? field) : 'Aperçu étiquette';
-    box.innerHTML=`<div style="font-family:${font.includes('Open Sans')?'Arial':font.split(' ')[0]};font-size:${size}px;color:${color};padding:18px;text-align:center">${sample}</div>`;
-  };
-  window.ensureLabelLayer=function(entry){
-    if(!entry || !entry.sourceId) return;
-    const id=entry.id+'_labels';
-    if(map.getLayer(id)) try{ map.removeLayer(id); }catch(e){}
-    if(!entry.labelConfig?.field) return;
-    const cfg=entry.labelConfig||{};
-    const fieldExpr=['to-string',['coalesce',['get',cfg.field],'']];
-    const anchorMap={center:'center',point:'center',line:'center', 'line-center':'center',inside:'center',outside:'top'};
-    const textSize=cfg.autoZoom===false ? (cfg.size||12) : ['interpolate',['linear'],['zoom'],10,Math.max(10,(cfg.size||12)*0.75),16,cfg.size||12,20,Math.min(28,(cfg.size||12)*1.45)];
-    map.addLayer({id, type:'symbol', source:entry.sourceId, layout:{'text-field':fieldExpr,'text-size':textSize,'text-font':[cfg.font||'Open Sans Regular','Arial Unicode MS Regular'],'text-anchor':anchorMap[cfg.placement]||'center','symbol-placement':(cfg.placement||'center').startsWith('line')?'line':'point','text-allow-overlap':!!cfg.overlap,'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']}, paint:{'text-color':cfg.color||'#1f2937','text-halo-width':0}}, undefined);
-  };
-  window.saveLabelConfigPanel=function(){
-    const entry=getEntry(window.currentLabelEntryId); if(!entry) return;
-    entry.labelConfig={ field:document.getElementById('labelFieldSelect').value||'', font:document.getElementById('labelFontFamily').value, size:Number(document.getElementById('labelFontSize').value||12), color:document.getElementById('labelColor').value, placement:document.getElementById('labelPlacement').value, overlap:document.getElementById('labelOverlap').value==='true', autoZoom:(document.getElementById('labelAutoZoom')?.value||'true')==='true' };
-    window.ensureLabelLayer(entry);
-    if(typeof closeLabelConfigPanel==='function') closeLabelConfigPanel();
-  };
+  
   function sync3DPanel(){
     const cb=document.getElementById('buildings3dEnabled'); if(cb) cb.checked=!!window.__current3dBldgMode;
     const r=document.getElementById('pitch3dRange'); const val=Math.round(map.getPitch()); if(r) r.value=String(val); const out=document.getElementById('pitch3dValue'); if(out) out.textContent=String(val);
@@ -4020,109 +3893,7 @@ document.addEventListener('transitionend', (e)=>{
 })();
 </script>
 
-<script id="auto-labels-patch-v2">
-(function(){
-  const map = window.map;
-  if(!map) return;
-
-  function getEntryById(id){
-    return (Array.isArray(window.userLayers) ? window.userLayers : []).find(e => e.id === id) || null;
-  }
-
-  function labelLayerId(entry){ return entry ? (entry.id + '_labels') : ''; }
-
-  function guessAutoLabelField(entry){
-    if(!entry || !entry.data?.features?.length) return '';
-    const props = (entry.data.features[0] || {}).properties || {};
-    const keys = (typeof filteredPropertyKeys === 'function' ? filteredPropertyKeys(props) : Object.keys(props || {})).filter(Boolean);
-    if(!keys.length) return '';
-    const idparcelleKey = keys.find(k => String(k||'').toLowerCase()==='idparcelle');
-    if(idparcelleKey && (entry.data.features || []).some(f => {
-      const v = f?.properties?.[idparcelleKey];
-      return v !== null && v !== undefined && String(v).trim() !== '';
-    })) return idparcelleKey;
-    return '';
-  }
-
-  function getAutoLabelDefaults(entry){
-    const geom = String(entry?.geometryType || '').toLowerCase();
-    const isPoint = geom.includes('point');
-    const isLine = geom.includes('line');
-    const placement = isLine ? 'line' : (isPoint ? 'point' : 'center');
-    const field = guessAutoLabelField(entry);
-    let minzoom = 10;
-    if(field && String(field).toLowerCase()==='idparcelle') minzoom = 10;
-    return {
-      field,
-      font: 'Myriad',
-     "text-size": [
-  "interpolate", ["linear"], ["zoom"],
-  14, 9,
-  16, 11,
-  18, 14,
-  20, 18
-]
-      color: '#ffffff',
-      placement,
-      overlap: false,
-      autoZoom: true,
-      minzoom
-    };
-  }
-
-  function applyAutoLabelConfig(entry, force){
-    if(!entry || !entry.sourceId || !entry.data?.features?.length) return;
-    const current = entry.labelConfig && typeof entry.labelConfig === 'object' ? entry.labelConfig : {};
-    const currentField = String(current.field || '').trim();
-    if(currentField && !force) return;
-    const defs = getAutoLabelDefaults(entry);
-    if(!defs.field) return;
-    entry.labelConfig = Object.assign({}, defs, current, { field: currentField || defs.field, minzoom: Number(current.minzoom || defs.minzoom) });
-  }
-
-  const originalEnsureLabelLayer = window.ensureLabelLayer;
-  window.ensureLabelLayer = function(entry){
-    if(!entry || !entry.sourceId) return;
-    applyAutoLabelConfig(entry, false);
-    const id = labelLayerId(entry);
-    if(map.getLayer(id)){
-      try{ map.removeLayer(id); }catch(e){}
-    }
-    const cfg = entry.labelConfig || {};
-    if(!cfg.field) return;
-    const fieldExpr = ['to-string', ['coalesce', ['get', cfg.field], '']];
-    const anchorMap = {center:'center',point:'center',line:'center','line-center':'center',inside:'center',outside:'top'};
-    const textSize = cfg.autoZoom===false
-      ? (cfg.size || 12)
-      : ['interpolate',['linear'],['zoom'],Math.max(0, Number(cfg.minzoom || 12)-1),Math.max(10,(cfg.size||12)*0.82),Math.max(12, Number(cfg.minzoom || 12)+2),cfg.size||12,20,Math.min(28,(cfg.size||12)*1.45)];
-    try{
-      map.addLayer({
-        id,
-        type:'symbol',
-        source:entry.sourceId,
-        minzoom:Number(cfg.minzoom || 12),
-        layout:{
-          'text-field':fieldExpr,
-          'text-size':textSize,
-          'text-font':[cfg.font || 'Open Sans Regular','Arial Unicode MS Regular'],
-          'text-anchor':anchorMap[cfg.placement] || 'center',
-          'symbol-placement': String(cfg.placement || 'center').startsWith('line') ? 'line' : 'point',
-          'text-allow-overlap': !!cfg.overlap,
-          'text-ignore-placement': false,
-          'symbol-sort-key': ['coalesce',['get','__sort'],0],
-          'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']
-        },
-        paint:{
-          'text-color': cfg.color || '#ffffff'
-        }
-      });
-      try{ map.moveLayer(id); }catch(e){}
-      map.setLayoutProperty(id, 'visibility', (window.labelsVisible === false || entry.visible === false) ? 'none' : 'visible');
-    }catch(e){
-      console.warn('ensureLabelLayer auto patch error', e);
-    }
-  };
-
+   
   const oldAddLayerEntry = window.addLayerEntry;
   if(typeof oldAddLayerEntry === 'function'){
     window.addLayerEntry = function(fc, name){
