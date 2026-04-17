@@ -692,8 +692,8 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
         </div>
         <div>
           <label class="small">Opacité de remplissage</label>
-          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.05" value="0.12" oninput="document.getElementById('styleFillOpacityValue').textContent=this.value; markStyleDirty()">
-          <div class="small"><span id="styleFillOpacityValue">0.12</span></div>
+          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('styleFillOpacityValue').textContent=this.value; markStyleDirty()">
+          <div class="small"><span id="styleFillOpacityValue">1</span></div>
         </div>
       </div>
     </div>
@@ -1395,23 +1395,7 @@ function safe(v,d='—'){ return v===null||v===undefined||v===''?d:v; }
 function isGeoField(key){ const k=String(key||'').toLowerCase(); return ['geometry','geom','the_geom','wkt','geojson','bbox','xmin','xmax','ymin','ymax','lat','latitude','lon','lng','long','longitude'].includes(k) || k.startsWith('geom_') || k.endsWith('_geom') || k.endsWith('_geometry') || /^lat(itude)?[_-]/.test(k) || /^lon(g(itude)?)?[_-]/.test(k); }
 function isStyleField(key){ const k=String(key||'').toLowerCase(); return ['fill-opacity','stroke-opacity','stroke','fill','stroke-width','stroke-linecap','stroke-linejoin','marker-color','marker-size','marker-symbol'].includes(k); }
 function filteredPropertyKeys(props){ return Object.keys(props||{}).filter(k=>!k.startsWith('__') && !isGeoField(k) && !isStyleField(k)); }
-function sanitizedProperties(props){ const out={}; 
-function populateLabelFieldSelect(entry) {
-  const select = document.getElementById('LBL_FIELD_SELECT');
-  if (!select || !entry || !entry.data?.features?.length) return;
-
-  const props = entry.data.features[0].properties || {};
-  const keys = Object.keys(props).filter(k =>
-    !k.startsWith('__') &&
-    !isGeoField(k) &&
-    !isStyleField(k)
-  );
-
-  select.innerHTML =
-    '<option value="">— Choisir un champ —</option>' +
-    keys.map(k => `<option value="${k}">${k}</option>`).join('');
-}
-filteredPropertyKeys(props).forEach(k=>{ const v=props[k]; if(v!==null && v!==undefined && String(v).trim()!=='') out[k]=v; }); return out; }
+function sanitizedProperties(props){ const out={}; filteredPropertyKeys(props).forEach(k=>{ const v=props[k]; if(v!==null && v!==undefined && String(v).trim()!=='') out[k]=v; }); return out; }
 function makeSelectionFeature(f){ return {type:'Feature',properties:{...(f.properties||{})},geometry:f.geometry,id:(f.id||f.properties?.__fid||(++currentSelectionId))}; }
 function detectCRS(geojson){ const name=geojson?.crs?.properties?.name||geojson?.crs?.name||''; const upper=String(name).toUpperCase(); if(upper.includes('2154')) return 'EPSG:2154'; if(upper.includes('3857')||upper.includes('900913')) return 'EPSG:3857'; if(upper.includes('4326')||upper.includes('CRS84')) return 'EPSG:4326'; const f=(geojson.features||[]).find(x=>x.geometry&&x.geometry.coordinates); if(!f) return 'EPSG:4326'; const p=firstCoord(f.geometry.coordinates); if(!p) return 'EPSG:4326'; const x=p[0], y=p[1]; if(Math.abs(x)<=180&&Math.abs(y)<=90) return 'EPSG:4326'; if(Math.abs(x)>200000&&Math.abs(x)<1500000&&Math.abs(y)>5000000&&Math.abs(y)<7500000) return 'EPSG:2154'; if(Math.abs(x)>1000&&Math.abs(y)>1000) return 'EPSG:3857'; return 'EPSG:4326'; }
 function firstCoord(coords){ if(!Array.isArray(coords)) return null; if(typeof coords[0]==='number') return coords; for(const c of coords){ const r=firstCoord(c); if(r) return r; } return null; }
@@ -1498,7 +1482,7 @@ function refreshExtrusionUi(){
   if(factorWrap) factorWrap.style.display = (mode==='factor' || mode==='auto') && !normalize ? 'block' : 'none';
 }
 function addLayerEntry(fc, name){ if(!fc?.features?.length) throw new Error('Aucune entité dans le fichier.'); const type=detectLayerType(fc.features[0]); const id='lyr_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); const crs=toWGS84InPlace(fc); applyInitialFeatureEnrichment(fc, type);
-  const entry={id,name,type,data:fc,crs,visible:true,opacity:type==='building'?0.88:1,color:randomColor(userLayers.length),colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:type==='building',extrusionField:'',extrusionMode:'auto',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:type==='building'?6:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',sourceId:id+'_src',layerIds:[],geometryType:fc.features[0].geometry?.type||'',popupFields:[],popupConfig:null};
+  const entry={id,name,type,data:fc,crs,visible:true,opacity:1,color:randomColor(userLayers.length),colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:type==='building',extrusionField:'',extrusionMode:'auto',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:type==='building'?6:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',sourceId:id+'_src',layerIds:[],geometryType:fc.features[0].geometry?.type||'',popupFields:[],popupConfig:null};
   Object.assign(entry, getDefaultLayerStyle(entry));
   map.addSource(entry.sourceId,{type:'geojson',data:fc});
   if(type==='building'){
@@ -1560,7 +1544,7 @@ function toggleLayerMenu(event,id){ event.stopPropagation(); const menu=document
 function openStyleForLayer(id){ closeLayerMenus(); const panel=document.getElementById('settings'); closePanels(); panel.classList.add('open'); document.body.classList.add('panel-open'); currentStyledLayerId=id; refreshLayerStylePanel(); }
 document.addEventListener('click', closeLayerMenus);
 function toggleEntryVisible(id, visible){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; entry.visible=visible; entry.layerIds.forEach(lid=>{ if(map.getLayer(lid)) map.setLayoutProperty(lid,'visibility',visible?'visible':'none'); }); updateLegend(); updateStats(); }
-function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; entry.opacity=parseFloat(value); applyEntryStyle(entry,true); updateLegend(); }
+function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; const v=parseFloat(value); entry.opacity=v; entry.fillOpacity=v; applyEntryStyle(entry,true); if(currentStyledLayerId===id){ const s=document.getElementById('styleFillOpacity'); const sv=document.getElementById('styleFillOpacityValue'); if(s) s.value=v; if(sv) sv.textContent=v; } updateLegend(); }
 function renameEntry(id){
   const entry=userLayers.find(x=>x.id===id);
   if(!entry) return;
@@ -1855,7 +1839,7 @@ function getDefaultLayerStyle(entry){
     styleField:'',
     numericField:'',
     fillColor: baseColor,
-    fillOpacity: isBuilding ? 0.88 : (kind==='point' ? 0.85 : (kind==='polygon' ? 0.12 : 0)),
+    fillOpacity: 1,
     outlineColor: isBuilding ? '#334155' : (kind==='point' ? '#ffffff' : baseColor),
     outlineWidth: isBuilding ? 0.6 : (kind==='point' ? 1.2 : 1.5),
     outlineOpacity: isBuilding ? 0.55 : 1,
@@ -1932,8 +1916,8 @@ function refreshLayerStylePanel(){
   extrusionField.innerHTML=`<option value="">${firstLabel}</option>`+numericKeys.map(k=>`<option value="${k}" ${entry.extrusionField===k?'selected':''}>${k}</option>`).join('');
   document.getElementById('styleShowLegend').checked=entry.showInLegend!==false;
   document.getElementById('styleFillColor').value=entry.fillColor||entry.color||'#2b7cff';
-  document.getElementById('styleFillOpacity').value=entry.fillOpacity ?? 0.12;
-  document.getElementById('styleFillOpacityValue').textContent=entry.fillOpacity ?? 0.12;
+  document.getElementById('styleFillOpacity').value=entry.opacity ?? entry.fillOpacity ?? 1;
+  document.getElementById('styleFillOpacityValue').textContent=entry.opacity ?? entry.fillOpacity ?? 1;
   document.getElementById('styleOutlineColor').value=entry.outlineColor||'#334155';
   document.getElementById('styleOutlineOpacity').value=entry.outlineOpacity ?? 1;
   document.getElementById('styleOutlineOpacityValue').textContent=entry.outlineOpacity ?? 1;
@@ -1971,7 +1955,7 @@ function applyEntryStyle(entry, skipLegend){
   const kind=geometryKind(entry);
   const fillColorExpr = entry.renderMode==='attribute' && entry.styleField ? makeColorExpression(entry.styleField,['literal',entry.fillColor]) : entry.fillColor;
   const lineColorExpr = entry.renderMode==='attribute' && entry.styleField ? makeColorExpression(entry.styleField,['literal',entry.outlineColor]) : entry.outlineColor;
-  const fillOpacity=(Number(entry.fillOpacity ?? 0.12) * Number(entry.opacity ?? 1));
+  const fillOpacity=Number(entry.opacity ?? entry.fillOpacity ?? 1);
   const outlineOpacity=(Number(entry.outlineOpacity ?? 1) * Number(entry.opacity ?? 1));
   if(entry.type==='building'){
     const fillId=entry.layerIds.find(x=>map.getLayer(x) && map.getLayer(x).type==='fill-extrusion');
@@ -2028,7 +2012,8 @@ function applyActiveLayerStyle(skipLegend){
   entry.styleField=document.getElementById('styleField').value || '';
   entry.numericField=document.getElementById('styleNumericField').value || '';
   entry.fillColor=document.getElementById('styleFillColor').value;
-  entry.fillOpacity=parseFloat(document.getElementById('styleFillOpacity').value || 0.12);
+  entry.fillOpacity=parseFloat(document.getElementById('styleFillOpacity').value || 1);
+  entry.opacity=entry.fillOpacity;
   entry.outlineColor=document.getElementById('styleOutlineColor').value;
   entry.outlineOpacity=parseFloat(document.getElementById('styleOutlineOpacity').value || 1);
   entry.outlineWidth=parseFloat(document.getElementById('styleOutlineWidth').value || 1.5);
@@ -2371,8 +2356,8 @@ function handleTableRowClick(rowEl, evt){ const fid=rowEl.getAttribute('data-fid
 function captureCurrentView(){ const target=document.getElementById('map'); if(window.html2canvas){ return html2canvas(target,{useCORS:true,backgroundColor:'#ffffff',logging:false,scale:2}); } return Promise.resolve(map.getCanvas()); }
 function exportMapImage(){ captureCurrentView().then(canvas=>{ const url=canvas.toDataURL('image/png'); downloadBlob((function(){ const bstr=atob(url.split(',')[1]); const len=bstr.length; const arr=new Uint8Array(len); for(let i=0;i<len;i++) arr[i]=bstr.charCodeAt(i); return new Blob([arr],{type:'image/png'}); })(),'carte.png'); }).catch(()=>{ try{ const url=map.getCanvas().toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download='carte.png'; a.click(); }catch(e){ alert('Export image impossible avec ce fond de carte.'); } }); }
 function exportMapPdf(){ captureCurrentView().then(canvas=>{ const { jsPDF } = window.jspdf; const pdf=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'}); const img=canvas.toDataURL('image/png'); const w=pdf.internal.pageSize.getWidth(); const h=pdf.internal.pageSize.getHeight(); const ratio=Math.min((w-30)/canvas.width,(h-30)/canvas.height); const dw=canvas.width*ratio, dh=canvas.height*ratio; pdf.addImage(img,'PNG',(w-dw)/2,(h-dh)/2,dw,dh); pdf.save('carte.pdf'); }).catch(()=>alert('Export PDF impossible avec ce fond de carte.')); }
-function buildProjectObject(){ const basemapLayer=(map.getStyle().layers||[]).find(l=>l.id==='basemap'); return {meta:{title:'Carte 3D des bâtiments',version:'1.4'},camera:{center:map.getCenter(),zoom:map.getZoom(),pitch:map.getPitch(),bearing:map.getBearing()},basemap:basemapLayer?.source||'voyager',layers:userLayers.map(u=>({name:u.name,type:u.type,visible:u.visible,opacity:u.opacity,color:u.color,colorField:u.colorField,heightFactor:u.heightFactor,extrusionEnabled:u.extrusionEnabled,extrusionField:u.extrusionField,extrusionMode:u.extrusionMode,extrusionFactor:u.extrusionFactor,extrusionMin:u.extrusionMin,extrusionMax:u.extrusionMax,extrusionDefault:u.extrusionDefault,extrusionNormalize:u.extrusionNormalize,styleField:u.styleField,numericField:u.numericField,renderMode:u.renderMode,lineWidth:u.lineWidth,showInLegend:u.showInLegend,filterExpression:u.filterExpression,geometryType:u.geometryType,popupFields:u.popupFields||[],popupConfig:u.popupConfig||null,legendUrl:u.legendUrl||'',remoteConfig:u.remoteConfig||null,data:u.data||null}))}; }
-function applySavedStateToEntry(entry,l){ entry.visible=l.visible; entry.opacity=l.opacity; entry.color=l.color; entry.colorField=l.colorField||''; entry.heightFactor=l.heightFactor||1; entry.extrusionEnabled=l.extrusionEnabled ?? entry.extrusionEnabled; entry.extrusionField=l.extrusionField||''; entry.extrusionMode=l.extrusionMode||'auto'; entry.extrusionFactor=l.extrusionFactor||entry.heightFactor||1; entry.extrusionMin=Number.isFinite(Number(l.extrusionMin))?Number(l.extrusionMin):0; entry.extrusionMax=Number.isFinite(Number(l.extrusionMax))?Number(l.extrusionMax):120; entry.extrusionDefault=Number.isFinite(Number(l.extrusionDefault))?Number(l.extrusionDefault):(entry.type==='building'?6:0); entry.extrusionNormalize=!!l.extrusionNormalize; entry.styleField=l.styleField||''; entry.numericField=l.numericField||''; entry.renderMode=l.renderMode||'single'; entry.lineWidth=l.lineWidth||2; entry.showInLegend=l.showInLegend!==false; entry.filterExpression=l.filterExpression||''; entry.legendUrl=l.legendUrl||entry.legendUrl||''; entry.popupFields=Array.isArray(l.popupFields)?l.popupFields:[]; entry.popupConfig=l.popupConfig||entry.popupConfig||null; toggleEntryVisible(entry.id, l.visible); setEntryOpacity(entry.id, l.opacity); currentStyledLayerId=entry.id; refreshLayerStylePanel(); applyActiveLayerStyle(true); }
+function buildProjectObject(){ const basemapLayer=(map.getStyle().layers||[]).find(l=>l.id==='basemap'); return {meta:{title:'Carte 3D des bâtiments',version:'1.4'},camera:{center:map.getCenter(),zoom:map.getZoom(),pitch:map.getPitch(),bearing:map.getBearing()},basemap:basemapLayer?.source||'voyager',layers:userLayers.map(u=>({name:u.name,type:u.type,visible:u.visible,opacity:u.opacity,fillOpacity:u.fillOpacity,color:u.color,colorField:u.colorField,heightFactor:u.heightFactor,extrusionEnabled:u.extrusionEnabled,extrusionField:u.extrusionField,extrusionMode:u.extrusionMode,extrusionFactor:u.extrusionFactor,extrusionMin:u.extrusionMin,extrusionMax:u.extrusionMax,extrusionDefault:u.extrusionDefault,extrusionNormalize:u.extrusionNormalize,styleField:u.styleField,numericField:u.numericField,renderMode:u.renderMode,lineWidth:u.lineWidth,showInLegend:u.showInLegend,filterExpression:u.filterExpression,geometryType:u.geometryType,popupFields:u.popupFields||[],popupConfig:u.popupConfig||null,legendUrl:u.legendUrl||'',remoteConfig:u.remoteConfig||null,data:u.data||null}))}; }
+function applySavedStateToEntry(entry,l){ entry.visible=l.visible; entry.opacity=l.opacity; entry.fillOpacity=(l.opacity ?? l.fillOpacity ?? 1); entry.color=l.color; entry.colorField=l.colorField||''; entry.heightFactor=l.heightFactor||1; entry.extrusionEnabled=l.extrusionEnabled ?? entry.extrusionEnabled; entry.extrusionField=l.extrusionField||''; entry.extrusionMode=l.extrusionMode||'auto'; entry.extrusionFactor=l.extrusionFactor||entry.heightFactor||1; entry.extrusionMin=Number.isFinite(Number(l.extrusionMin))?Number(l.extrusionMin):0; entry.extrusionMax=Number.isFinite(Number(l.extrusionMax))?Number(l.extrusionMax):120; entry.extrusionDefault=Number.isFinite(Number(l.extrusionDefault))?Number(l.extrusionDefault):(entry.type==='building'?6:0); entry.extrusionNormalize=!!l.extrusionNormalize; entry.styleField=l.styleField||''; entry.numericField=l.numericField||''; entry.renderMode=l.renderMode||'single'; entry.lineWidth=l.lineWidth||2; entry.showInLegend=l.showInLegend!==false; entry.filterExpression=l.filterExpression||''; entry.legendUrl=l.legendUrl||entry.legendUrl||''; entry.popupFields=Array.isArray(l.popupFields)?l.popupFields:[]; entry.popupConfig=l.popupConfig||entry.popupConfig||null; toggleEntryVisible(entry.id, l.visible); setEntryOpacity(entry.id, l.opacity); currentStyledLayerId=entry.id; refreshLayerStylePanel(); applyActiveLayerStyle(true); }
 function restoreProject(project){ if(project?.basemap) setBasemap(project.basemap); if(!project?.layers?.length) return; project.layers.forEach(l=>{ if(l.data){ addLayerEntry(l.data, l.name); const entry=userLayers[userLayers.length-1]; applySavedStateToEntry(entry,l); return; } if(l.remoteConfig?.template){ addRasterLayerFromTemplate(l.remoteConfig.template,l.name,l.remoteConfig.crs||'EPSG:3857',l.type||l.remoteConfig.type||'remote-tile', l.remoteConfig); const entry=userLayers[userLayers.length-1]; applySavedStateToEntry(entry,l); } }); if(project.camera){ map.jumpTo({center:[project.camera.center.lng, project.camera.center.lat], zoom:project.camera.zoom, pitch:project.camera.pitch, bearing:project.camera.bearing}); } }
 function addRasterLayerFromTemplate(template,name,crs='EPSG:3857',kind='remote-tile',remoteConfig=null){ const id='remote_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); const src=id+'_src'; map.addSource(src,{type:'raster',tiles:[template],tileSize:256}); map.addLayer({id,type:'raster',source:src}); userLayers.push({id,name,type:kind,visible:true,opacity:1,color:'#64748b',colorField:'',styleField:'',numericField:'',renderMode:'single',lineWidth:2,heightFactor:1,extrusionEnabled:false,extrusionField:'',extrusionMode:'auto',extrusionFactor:1,extrusionMin:0,extrusionMax:120,extrusionDefault:0,extrusionNormalize:false,showInLegend:true,filterExpression:'',legendUrl:remoteConfig?.legendUrl||'',remoteConfig:remoteConfig||{type:kind,template,crs},sourceId:src,layerIds:[id],geometryType:'Raster',popupFields:[],popupConfig:null}); updateLayerManager(); updateLegend(); closePanels(); }
 async function addWmtsLayerFromCapabilities(url,name,layers,format='image/png'){ const txt = await fetch(url).then(r=>r.text()); const xml = new DOMParser().parseFromString(txt,'text/xml'); const layerNodes = [...xml.getElementsByTagNameNS('*','Layer')].filter(n=>n.parentNode && /Contents$/i.test(n.parentNode.nodeName)); if(!layerNodes.length) throw new Error('Aucune couche WMTS trouvée dans les capacités.'); let layerNode = null; if(layers){ layerNode = layerNodes.find(n => ([...n.getElementsByTagNameNS('*','Identifier')][0]?.textContent || '').trim()===layers); if(!layerNode) throw new Error('Couche WMTS introuvable dans GetCapabilities : '+layers); } else { layerNode = layerNodes[0]; layers = ([...layerNode.getElementsByTagNameNS('*','Identifier')][0]?.textContent || 'wmts').trim(); }
@@ -2688,13 +2673,13 @@ const streetViewImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAY
     const fillId = id + '_fill';
     const lineId = id + '_line';
     const pointId = id + '_point';
-    map.addLayer({ id:fillId, type:'fill', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Polygon'], paint:{'fill-color':'#2b7cff','fill-opacity':0.12} });
+    map.addLayer({ id:fillId, type:'fill', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Polygon'], paint:{'fill-color':'#2b7cff','fill-opacity':1} });
     map.addLayer({ id:lineId, type:'line', source:sourceId, minzoom:profile.minZoom, filter:['any',['==','$type','LineString'],['==','$type','Polygon']], paint:{'line-color':'#334155','line-width':1.3,'line-opacity':0.95} });
     map.addLayer({ id:pointId, type:'circle', source:sourceId, minzoom:profile.minZoom, filter:['==','$type','Point'], paint:{'circle-radius':['interpolate',['linear'],['zoom'],profile.minZoom,2,19,5],'circle-color':'#2b7cff','circle-opacity':0.82,'circle-stroke-color':'#ffffff','circle-stroke-width':1} });
 
     const entry = {
       id, name, type:'wfs', crs:wfsSrs, visible:true, opacity:1,
-      color:'#2b7cff', fillColor:'#2b7cff', fillOpacity:0.12, outlineColor:'#334155',
+      color:'#2b7cff', fillColor:'#2b7cff', fillOpacity:1, outlineColor:'#334155',
       outlineOpacity:1, outlineWidth:1.3, lineWidth:1.3,
       sourceId, layerIds:[fillId,lineId,pointId],
       remoteType:'wfs', remoteUrl:url, remoteLayers:typeName, remoteVersion:version,
@@ -3315,7 +3300,7 @@ async function fetchWfsPage(baseUrl, version, typeNames, bboxParam, pageSize, ma
     map.addLayer({
       id: fillId, type:'fill', source:sourceId, minzoom:p.minZoom,
       filter:['any',['==',['geometry-type'],'Polygon'],['==',['geometry-type'],'MultiPolygon']],
-      paint:{'fill-color':'#2b7cff','fill-opacity':0.12}
+      paint:{'fill-color':'#2b7cff','fill-opacity':1}
     });
     map.addLayer({
       id: lineId, type:'line', source:sourceId, minzoom:p.minZoom,
@@ -3436,6 +3421,64 @@ async function fetchWfsPage(baseUrl, version, typeNames, bboxParam, pageSize, ma
 
 
 
+<div id="labelConfigOverlay" class="label-config-overlay" aria-hidden="true">
+  <div class="label-config-dialog" role="dialog" aria-modal="true" aria-labelledby="labelConfigTitle">
+    <div class="popup-config-header">
+      <div><div id="labelConfigTitle" class="popup-config-title">Configurer étiquettes</div><div class="popup-config-subtitle">Choix du champ et style des labels</div></div>
+      <button class="popup-config-close" type="button" onclick="closeLabelConfigPanel()">×</button>
+    </div>
+    <div class="label-grid">
+      <div class="label-section">
+        <h4 style="margin:0 0 8px 0">Attribut</h4>
+        <label class="small">Champ affiché</label>
+        <select id="labelFieldSelect"></select>
+        <div class="label-placement-help">Le champ choisi sera affiché sur la carte pour cette couche.</div>
+        <h4 style="margin:14px 0 8px 0">Style</h4>
+        <div class="style-row">
+          <div><label class="small">Police</label><select id="labelFontFamily"><option value="Open Sans Regular">Open Sans</option><option value="Arial Unicode MS Regular">Arial</option><option value="Noto Sans Regular">Noto Sans</option></select></div>
+          <div><label class="small">Taille</label><select id="labelFontSize"><option value="10">10 px</option><option value="11">11 px</option><option value="12">12 px</option><option value="14">14 px</option><option value="16">16 px</option><option value="18">18 px</option></select></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Couleur</label><input id="labelColor" type="color" value="#1f2937"></div>
+          <div><label class="small">Halo</label><input id="labelHaloColor" type="color" value="#ffffff"></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Placement</label><select id="labelPlacement"><option value="center">Centré</option><option value="point">Point</option><option value="line">Ligne</option><option value="line-center">Ligne centrée</option><option value="inside">Intérieur</option><option value="outside">Extérieur</option></select></div>
+          <div><label class="small">Superposition</label><select id="labelOverlap"><option value="false">Éviter les chevauchements</option><option value="true">Autoriser</option></select></div>
+        </div>
+      </div>
+      <div class="label-section">
+        <h4 style="margin:0 0 8px 0">Aperçu</h4>
+        <div id="labelConfigPreview" class="label-preview"></div>
+      </div>
+    </div>
+    <div class="label-actions"><button type="button" onclick="closeLabelConfigPanel()">Annuler</button><button type="button" onclick="saveLabelConfigPanel()"><i class="fa-solid fa-check"></i> Enregistrer</button></div>
+  </div>
+</div>
+<div id="thematicConfigOverlay" class="thematic-config-overlay" aria-hidden="true">
+  <div class="thematic-config-dialog" role="dialog" aria-modal="true" aria-labelledby="thematicConfigTitle">
+    <div class="popup-config-header">
+      <div><div id="thematicConfigTitle" class="popup-config-title">Analyse thématique</div><div class="popup-config-subtitle">Classification, palette et contour</div></div>
+      <button class="popup-config-close" type="button" onclick="closeThematicConfigPanel()">×</button>
+    </div>
+    <div class="thematic-grid">
+      <div class="thematic-section">
+        <div class="style-row">
+          <div><label class="small">Méthode</label><select id="thematicMethod"><option value="categorical">Catégories</option><option value="quantile">Quantiles</option></select></div>
+          <div><label class="small">Classes</label><select id="thematicClassCount"><option>3</option><option selected>5</option><option>7</option></select></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Couleur contour</label><input id="thematicOutlineColor" type="color" value="#334155"></div>
+          <div><label class="small">Épaisseur contour</label><input id="thematicOutlineWidth" type="range" min="0" max="6" step="0.5" value="1.5"></div>
+        </div>
+        <div class="small" style="margin-top:10px">Palette</div>
+        <div id="thematicPaletteSwatches" class="thematic-swatches"></div>
+      </div>
+      <div class="thematic-section"><h4 style="margin:0 0 8px 0">Aperçu</h4><div id="thematicPreview" class="thematic-preview"></div></div>
+    </div>
+    <div class="thematic-actions"><button type="button" onclick="closeThematicConfigPanel()">Annuler</button><button type="button" onclick="saveThematicConfigPanel()"><i class="fa-solid fa-check"></i> Appliquer</button></div>
+  </div>
+</div>
 
 
 
@@ -3983,7 +4026,7 @@ document.addEventListener('transitionend', (e)=>{
       clearInterval(ui);
       var d=document.createElement('div');d.id='LBL_BOX';d.className='style-card';
       d.innerHTML='<div class="style-section-title">Étiquettes</div>'+
-        'label>Champ d’étiquette</label><select id="LBL_FIELD_SELECT"></select>'+
+        '<label>Champ</label><input id="LBL_FIELD">'+
         '<label>Taille</label><input id="LBL_SIZE" type="number" value="11">'+
         '<label>Couleur</label><input id="LBL_COLOR" type="color" value="#111827">'+
         '<button id="LBL_APPLY">Appliquer</button>';
