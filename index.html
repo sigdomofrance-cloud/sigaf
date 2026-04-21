@@ -12,7 +12,7 @@ E6 AUDIT / PREPARATION
 
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Carte 3D des bâtiments</title>
+<title>DomoCarto</title>
 <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
@@ -44,17 +44,17 @@ button,input,select{font:inherit}
 input,select{width:100%;padding:6px;border:1px solid #ccc;border-radius:7px;box-sizing:border-box;background:#fff;font-size:11px}
 button{padding:6px 8px;border:1px solid #ccc;border-radius:7px;background:#fff;cursor:pointer;font-size:11px}
 button:hover{background:#f3f3f3}
-.layer-card{padding:10px 12px 12px 12px;border-bottom:1px solid #ececec;background:#fff}
-.layer-head{display:flex;align-items:center;gap:10px}.layer-card:hover{background:#fafafa}.layer-card-topnote{font-size:10px;color:#6b7280;margin-top:6px}
+.layer-card{padding:8px 10px 8px 10px;border:2px solid #16354f;border-radius:8px;background:#fff;margin:0 0 8px 0}
+.layer-head{display:flex;align-items:center;gap:8px}.layer-card:hover{background:#fafafa}.layer-card-topnote{display:none}
 .layer-visibility{display:flex;align-items:center;gap:8px;min-width:52px}
 .layer-visibility input[type=checkbox]{width:16px;height:16px;accent-color:#2563eb;cursor:pointer}
 .layer-visibility-label{font-size:10px;color:#6b7280}
 .layer-visibility.off .layer-visibility-label{color:#9ca3af}
-.layer-name{flex:1;line-height:1.2;font-size:11px;min-width:0}
-.layer-name strong{display:block;font-size:11px;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.layer-meta{display:block;margin-top:2px;font-size:10px;color:#6b7280}
+.layer-name{flex:1;line-height:1.1;font-size:11px;min-width:0;padding-top:1px}
+.layer-name strong{display:block;font-size:11px;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.layer-meta{display:none}
 .layer-actions{display:flex;align-items:center;gap:6px}
-.layer-actions button{width:38px;height:36px;border:1px solid #d9d9d9;border-radius:12px;background:#fff;cursor:pointer;padding:0;color:#111827}
+.layer-actions button{width:34px;height:32px;border:1px solid #d9d9d9;border-radius:10px;background:#fff;cursor:pointer;padding:0;color:#111827;display:flex;align-items:center;justify-content:center}
 .layer-actions button:hover{background:#f8fafc}
 .layer-menu-wrap{position:relative}
 .layer-menu{position:absolute;right:0;top:28px;min-width:230px;background:#fff;border:1px solid #ddd;border-radius:14px;box-shadow:0 12px 28px rgba(0,0,0,.16);padding:6px;display:none;z-index:20}
@@ -65,7 +65,8 @@ body.panel-open .module3d,body.panel-open .logo-corner{z-index:900}
 
 body.panel-open .module3d,body.panel-open .logo-corner,body.panel-open .copyright-line{z-index:900}
 
-.transparency{margin-top:5px;display:flex;gap:6px;align-items:center}.transparency input[type=range]{flex:1}
+.transparency{margin-top:4px;display:flex;gap:6px;align-items:center}.transparency input[type=range]{flex:1}
+.layer-inline-label-row{display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px 0}.layer-inline-label-row label{display:flex;align-items:center;gap:8px;cursor:pointer;margin:0}.layer-inline-label-row .layer-label-config-btn{width:32px;height:32px;border:1px solid #d9d9d9;border-radius:10px;background:#fff;cursor:pointer;padding:0;color:#111827;font-weight:700;display:flex;align-items:center;justify-content:center}.layer-inline-label-row .layer-label-config-btn:hover{background:#f8fafc}
 .legend-item{border:1px solid #ececec;border-radius:9px;padding:7px;background:#fff;margin:7px 0}
 .table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid #eee;padding:5px;font-size:10px;text-align:left;vertical-align:top}.table th{position:sticky;top:39px;background:#fff}
 .suggest{font-size:11px;background:#f5f5f5;border-radius:7px;padding:5px;margin-top:4px;cursor:pointer}.suggest:hover{background:#ebebeb}
@@ -456,13 +457,24 @@ body.panel-open .module3d,body.panel-open .logo-corner,body.panel-open .copyrigh
 .popup-preview-table td{padding:2px 0;font-size:inherit;vertical-align:top}
 .popup-preview-table td:first-child{padding-right:8px}
 .popup-config-empty{font-size:11px;color:#6b7280;padding:8px 0}
-.popup-runtime{--popup-title-color:#111827;--popup-title-size:13px;--popup-title-bg:#ffffff;--popup-value-color:#374151;--popup-value-size:11px;--popup-value-bg:#ffffff;--popup-bg:rgba(255,255,255,.96);--popup-padding:8px;--popup-gap:4px;--popup-radius:10px; background:var(--popup-bg); padding:var(--popup-padding); border-radius:var(--popup-radius); box-sizing:border-box;}
+.popup-runtime{--popup-title-color:#000000;--popup-title-size:10px;--popup-title-bg:transparent;--popup-value-color:#2563eb;--popup-value-size:10px;--popup-value-bg:transparent;--popup-bg:rgba(255,255,255,.96);--popup-padding:2px;--popup-gap:2px;--popup-col-gap:6px;--popup-radius:5px; background:var(--popup-bg); padding:var(--popup-padding); border-radius:var(--popup-radius); box-sizing:border-box; width:240px; font-family:"Segoe UI", Arial, sans-serif;}
 .popup-runtime-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:var(--popup-gap)}
 .popup-runtime-title{font-weight:700;color:var(--popup-title-color);font-size:var(--popup-title-size);background:var(--popup-title-bg);padding:0;border-radius:0;display:inline-block}
 .popup-runtime-body{display:flex;flex-direction:column;gap:var(--popup-gap)}
-.popup-runtime-row{display:grid;grid-template-columns:minmax(110px,40%) 1fr;gap:var(--popup-gap);align-items:start}
+.popup-runtime-row{display:grid;grid-template-columns:minmax(110px,40%) 1fr;column-gap:var(--popup-col-gap);row-gap:var(--popup-gap);align-items:start}
 .popup-runtime-key{font-weight:700;color:var(--popup-title-color);font-size:var(--popup-title-size);background:var(--popup-title-bg);padding:0;border-radius:0;word-break:break-word}
 .popup-runtime-value{color:var(--popup-value-color);font-size:var(--popup-value-size);background:var(--popup-value-bg);padding:0;border-radius:0;word-break:break-word}
+.style-card input[type=range],
+.popup-config-grid input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:linear-gradient(to right, rgba(0,60,113,.18) 0%, rgba(0,60,113,.18) var(--range-progress,100%), #ffffff var(--range-progress,100%), #ffffff 100%);border:1px solid rgba(0,60,113,.10);border-radius:999px;cursor:pointer;outline:none;touch-action:pan-x;}
+.style-card input[type=range]::-webkit-slider-runnable-track,
+.popup-config-grid input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent;border-radius:999px;}
+.style-card input[type=range]::-moz-range-track,
+.popup-config-grid input[type=range]::-moz-range-track{height:6px;background:transparent;border-radius:999px;}
+.style-card input[type=range]::-webkit-slider-thumb,
+.popup-config-grid input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:18px;border-radius:4px;background:#003C71;border:none;margin-top:-7px;box-shadow:0 0 0 1px rgba(255,255,255,.68),0 1px 4px rgba(0,0,0,.18);}
+.style-card input[type=range]::-moz-range-thumb,
+.popup-config-grid input[type=range]::-moz-range-thumb{width:12px;height:18px;border-radius:4px;background:#003C71;border:none;box-shadow:0 0 0 1px rgba(255,255,255,.68),0 1px 4px rgba(0,0,0,.18);}
+.popup-range-value{font-size:10px;color:#6b7280;margin-top:4px}
 @media(max-width:900px){.popup-config-body{grid-template-columns:1fr}.popup-config-dialog{width:min(96vw,700px)}}
 
 </style>
@@ -508,6 +520,77 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
   boot();
 })();
 </script>
+
+
+<style id="titles-blue-cleanup">
+.panel h3,
+.style-section-title,
+.popup-config-title,
+.popup-config-section h4,
+.chart-title,
+.columns-menu .menu-title,
+#layerStyleTitle{color:#003C71 !important;}
+</style>
+
+<style id="layer-card-compact-overrides">
+.panel h3,.style-section-title,.popup-config-title,.popup-config-section h4,.chart-title,.columns-menu .menu-title,#layerStyleTitle{color:#003C71 !important;}
+#layersList.block{padding:8px 8px 10px 8px !important;}
+.layer-card{position:relative;padding:10px 12px !important;border:none !important;border-radius:16px !important;margin:0 0 8px 0 !important;background:#fff !important;box-shadow:0 0 0 0.5px rgba(0,0,0,0.08) !important;user-select:none;}
+.layer-head{display:flex !important;align-items:flex-start !important;justify-content:space-between !important;gap:8px !important;margin-bottom:12px !important;padding-right:22px !important;}
+.layer-name{flex:1;min-width:0;padding-top:0 !important;}
+.layer-name strong{font-size:15px !important;font-weight:700 !important;color:#111827 !important;line-height:1.1 !important;}
+.layer-drag-handle{position:absolute;top:8px;right:10px;width:12px;height:12px;border:none;background:transparent;color:#0f172a;display:flex;align-items:center;justify-content:center;cursor:grab;padding:0;z-index:2;}
+.layer-drag-handle::before{content:'';width:7px;height:7px;border-radius:50%;background:#0f172a;display:block;box-shadow:0 0 0 1px rgba(255,255,255,.55);}
+.layer-drag-handle:active{cursor:grabbing;}
+.layer-controls-row{display:flex;align-items:center;gap:8px;margin-top:0;}
+.layer-controls-row > *{flex-shrink:0;}
+.layer-visible-checkbox{width:11px !important;height:11px !important;accent-color:#003C71 !important;cursor:pointer;flex:0 0 auto;}
+.layer-card .compact-transparency{margin-top:0 !important;flex:1 1 auto !important;min-width:88px;display:flex;align-items:center;gap:0 !important;}
+.layer-card .compact-transparency .small{display:none !important;}
+.layer-card .compact-transparency input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:4px !important;min-width:88px;max-width:100%;background:linear-gradient(to right, rgba(0,60,113,.16) 0%, rgba(0,60,113,.16) var(--range-progress,50%), #ffffff var(--range-progress,50%), #ffffff 100%);border:1px solid rgba(0,60,113,.10);border-radius:999px;cursor:pointer;outline:none;touch-action:none;}
+.layer-card .compact-transparency input[type=range]::-webkit-slider-runnable-track{height:4px;background:transparent;border-radius:999px;}
+.layer-card .compact-transparency input[type=range]::-moz-range-track{height:4px;background:transparent;border-radius:999px;}
+.layer-card .compact-transparency input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:10px;height:14px;border-radius:4px;background:#003C71;border:none;margin-top:-6px;box-shadow:0 0 0 1px rgba(255,255,255,.65),0 1px 3px rgba(0,0,0,.18);}
+.layer-card .compact-transparency input[type=range]::-moz-range-thumb{width:10px;height:14px;border-radius:4px;background:#003C71;border:none;box-shadow:0 0 0 1px rgba(255,255,255,.65),0 1px 3px rgba(0,0,0,.18);}
+.layer-label-toggle-btn,.layer-label-btn{width:20px !important;height:20px !important;border:none !important;background:transparent !important;color:#9ca3af !important;font-weight:700;font-size:9px !important;cursor:pointer;display:flex !important;align-items:center !important;justify-content:center !important;padding:0 !important;line-height:1;}
+.layer-label-toggle-btn.active,.layer-label-btn.active{color:#111827 !important;}
+.layer-actions{display:flex !important;align-items:center !important;gap:0 !important;margin-left:2px;}
+.layer-actions .layer-action-settings,.layer-actions button{width:20px !important;height:20px !important;border:none !important;background:transparent !important;box-shadow:none !important;padding:0 !important;border-radius:0 !important;color:#4b5563 !important;font-size:12px !important;display:flex !important;align-items:center !important;justify-content:center !important;}
+.layer-actions .layer-action-settings:hover,.layer-actions button:hover{background:transparent !important;color:#003C71 !important;}
+.layer-inline-label-row,.layer-label-row,.layer-visibility-label,.layer-meta,.layer-card-topnote{display:none !important;}
+/* Menu actions compact pour panneau étroit */
+.layer-menu{right:-2px !important;top:22px !important;min-width:214px !important;max-width:214px !important;background:#fff !important;border:1px solid #e5e7eb !important;border-radius:18px !important;box-shadow:0 14px 34px rgba(0,0,0,.14) !important;padding:5px !important;overflow:hidden !important;z-index:40 !important;}
+.layer-menu button{display:flex !important;width:100% !important;justify-content:flex-start !important;gap:10px !important;border:none !important;background:none !important;padding:10px 11px !important;border-radius:14px !important;font-size:10px !important;line-height:1.15 !important;align-items:center !important;color:#111827 !important;white-space:normal !important;}
+.layer-menu button i{width:14px !important;text-align:center !important;font-size:11px !important;color:#0f172a !important;flex:0 0 14px;}
+.layer-menu button:hover{background:#f3f4f6 !important;}
+.layer-menu button:first-child{background:#f3f4f6 !important;}
+.layer-menu button.danger{border-top:1px solid #e5e7eb !important;margin-top:4px !important;padding-top:12px !important;color:#b3261e !important;border-radius:14px !important;}
+.layer-menu button.danger i{color:#0f172a !important;}
+</style>
+
+
+<style id="v4-separation-overrides">
+#styleLabelCard{display:none !important;}
+#settings #extrusionControls{display:none !important;}
+#layer3dExtrusionHost{display:flex;flex-direction:column;min-height:320px;}
+#extrusionLayerToolbar{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
+#extrusionControls{display:block !important;border:none !important;padding:0 !important;background:none !important;box-shadow:none !important;}
+#layer3dExtrusionActions{margin-top:auto;padding-top:14px;display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:#fff;}
+#layer3dExtrusionActions button{min-width:170px;}
+</style>
+
+<style id="label-config-fix-20260420">
+.label-config-overlay{position:fixed;inset:0;background:rgba(15,23,42,.32);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:4500;padding:20px}
+.label-config-overlay.open{display:flex}
+.label-config-dialog{width:min(820px,96vw);max-height:min(88vh,900px);background:#fff;border:1px solid #dbe1e8;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.22);display:flex;flex-direction:column;overflow:hidden}
+.label-grid{padding:16px 18px;overflow:auto;display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
+.label-section{border:1px solid #ececec;border-radius:14px;background:#fff;padding:14px}
+.label-preview{min-height:140px;border:1px dashed #dbe1e8;border-radius:12px;padding:12px;background:#f8fafc;display:flex;align-items:center;justify-content:center}
+.label-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid #ececec;background:#fff}
+.label-placement-help{font-size:10px;color:#6b7280;margin-top:6px}
+#layer3dExtrusionActions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid #ececec}
+@media(max-width:900px){.label-grid{grid-template-columns:1fr}.label-config-dialog{width:min(96vw,700px)}}
+</style>
 
 </head>
 <body>
@@ -717,8 +800,8 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
         </div>
         <div>
           <label class="small">Opacité de remplissage</label>
-          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('styleFillOpacityValue').textContent=this.value; syncStyleOpacityPreview(this.value); markStyleDirty()">
-          <div class="small"><span id="styleFillOpacityValue">1</span></div>
+          <input id="styleFillOpacity" type="range" min="0" max="1" step="0.01" value="1" oninput="document.getElementById('styleFillOpacityValue').textContent=Number(this.value).toFixed(2); setRangeProgress(this); syncStyleOpacityPreview(this.value); markStyleDirty()">
+          <div class="small"><span id="styleFillOpacityValue">1.00</span></div>
         </div>
       </div>
     </div>
@@ -732,8 +815,8 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
         </div>
         <div>
           <label class="small">Opacité de contour</label>
-          <input id="styleOutlineOpacity" type="range" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('styleOutlineOpacityValue').textContent=this.value; markStyleDirty()">
-          <div class="small"><span id="styleOutlineOpacityValue">1</span></div>
+          <input id="styleOutlineOpacity" type="range" min="0" max="1" step="0.01" value="1" oninput="document.getElementById('styleOutlineOpacityValue').textContent=Number(this.value).toFixed(2); setRangeProgress(this); markStyleDirty()">
+          <div class="small"><span id="styleOutlineOpacityValue">1.00</span></div>
         </div>
       </div>
       <div style="margin-top:10px">
@@ -866,7 +949,7 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
     </div>
     <div class="style-card" id="layer3dExtrusionHost">
       <div class="style-section-title"><i class="fa-solid fa-cubes" style="margin-right:6px"></i>Extrusion couche active</div>
-      <div class="small">Sélectionne d'abord une couche polygonale dans le panneau Style pour configurer son extrusion.</div>
+      <div class="small">Choisis directement une couche polygonale et règle son extrusion depuis ce panneau 3D.</div>
     </div>
   </div>
 </div>
@@ -934,8 +1017,7 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
     </div>
   </div>
   <button class="map-tool" id="btnLegendTool" onclick="togglePanel('legend')" title="Légende"><i class="fa-solid fa-list"></i></button>
-  <button class="map-tool" id="btnToggleLabels" onclick="toggleLabels()" title="Afficher / masquer les étiquettes"><i class="fa-solid fa-font"></i></button>
-  <button class="map-tool" id="btnFullscreenTool" onclick="toggleFullscreen()" title="Plein écran"><i class="fa-solid fa-expand"></i></button>
+    <button class="map-tool" id="btnFullscreenTool" onclick="toggleFullscreen()" title="Plein écran"><i class="fa-solid fa-expand"></i></button>
 </div>
 
 <div id="streetViewOverlay" tabindex="0" style="display:none;position:absolute;left:52px;right:0;top:0;bottom:0;z-index:1245;cursor:crosshair;background:transparent"></div>
@@ -984,11 +1066,11 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
         <div class="popup-config-grid">
           <div>
             <label class="small">Couleur du titre</label>
-            <input id="popupTitleColor" type="color" value="#111827">
+            <input id="popupTitleColor" type="color" value="#000000">
           </div>
           <div>
             <label class="small">Taille police du titre</label>
-            <input id="popupTitleSize" list="popupTitleSizeList" value="13" placeholder="ex : 13 ou 14.5">
+            <input id="popupTitleSize" list="popupTitleSizeList" value="10" placeholder="ex : 13 ou 14.5">
             <datalist id="popupTitleSizeList">
               <option value="11"></option>
               <option value="12"></option>
@@ -1003,12 +1085,17 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
             <input id="popupTitleBg" type="color" value="#ffffff">
           </div>
           <div>
+            <label class="small">Transparence fond du titre</label>
+            <input id="popupTitleBgOpacity" type="range" min="0" max="1" step="0.01" value="1">
+            <div class="popup-range-value"><span id="popupTitleBgOpacityValue">1.00</span></div>
+          </div>
+          <div>
             <label class="small">Couleur des valeurs</label>
-            <input id="popupValueColor" type="color" value="#374151">
+            <input id="popupValueColor" type="color" value="#2563eb">
           </div>
           <div>
             <label class="small">Taille police des valeurs</label>
-            <input id="popupValueSize" list="popupValueSizeList" value="11" placeholder="ex : 11 ou 12.5">
+            <input id="popupValueSize" list="popupValueSizeList" value="10" placeholder="ex : 11 ou 12.5">
             <datalist id="popupValueSizeList">
               <option value="10"></option>
               <option value="11"></option>
@@ -1023,6 +1110,11 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
             <input id="popupValueBg" type="color" value="#ffffff">
           </div>
           <div>
+            <label class="small">Transparence fond des valeurs</label>
+            <input id="popupValueBgOpacity" type="range" min="0" max="1" step="0.01" value="1">
+            <div class="popup-range-value"><span id="popupValueBgOpacityValue">1.00</span></div>
+          </div>
+          <div>
             <label class="small">Police</label>
             <select id="popupFontFamily">
               <option value="Segoe UI, Arial, sans-serif">Segoe UI</option>
@@ -1034,7 +1126,7 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
           </div>
           <div>
             <label class="small">Largeur popup</label>
-            <input id="popupMaxWidth" list="popupMaxWidthList" value="320px" placeholder="ex : 320px ou 28rem">
+            <input id="popupMaxWidth" list="popupMaxWidthList" value="240px" placeholder="ex : 320px ou 28rem">
             <datalist id="popupMaxWidthList">
               <option value="320px"></option>
               <option value="360px"></option>
@@ -1048,8 +1140,13 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
             <input id="popupBgColor" type="color" value="#ffffff">
           </div>
           <div>
+            <label class="small">Transparence fond popup</label>
+            <input id="popupBgOpacity" type="range" min="0" max="1" step="0.01" value="1">
+            <div class="popup-range-value"><span id="popupBgOpacityValue">1.00</span></div>
+          </div>
+          <div>
             <label class="small">Padding interne</label>
-            <input id="popupPadding" list="popupPaddingList" value="8px" placeholder="ex : 8px ou 0.75rem">
+            <input id="popupPadding" list="popupPaddingList" value="2px" placeholder="ex : 8px ou 0.75rem">
             <datalist id="popupPaddingList">
               <option value="6px"></option>
               <option value="8px"></option>
@@ -1059,8 +1156,8 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
             </datalist>
           </div>
           <div>
-            <label class="small">Espacement titre / valeur</label>
-            <input id="popupGap" list="popupGapList" value="4px" placeholder="ex : 4px ou 0.5rem">
+            <label class="small">Espacement vertical titre / valeur</label>
+            <input id="popupGap" list="popupGapList" value="2px" placeholder="ex : 4px ou 0.5rem">
             <datalist id="popupGapList">
               <option value="4px"></option>
               <option value="6px"></option>
@@ -1070,8 +1167,19 @@ body.panel-open #map, body.has-open-panel #map{left:52px !important;}
             </datalist>
           </div>
           <div>
+            <label class="small">Espacement horizontal titre / valeur</label>
+            <input id="popupColGap" list="popupColGapList" value="6px" placeholder="ex : 6px ou 0.5rem">
+            <datalist id="popupColGapList">
+              <option value="4px"></option>
+              <option value="6px"></option>
+              <option value="8px"></option>
+              <option value="10px"></option>
+              <option value="12px"></option>
+            </datalist>
+          </div>
+          <div>
             <label class="small">Arrondi</label>
-            <input id="popupRadius" list="popupRadiusList" value="10px" placeholder="ex : 10px ou 1rem">
+            <input id="popupRadius" list="popupRadiusList" value="5px" placeholder="ex : 10px ou 1rem">
             <datalist id="popupRadiusList">
               <option value="8px"></option>
               <option value="10px"></option>
@@ -1446,7 +1554,7 @@ function popupHtml(title, props, lngLat, entry){
   const lat = lngLat && lngLat.lat ? lngLat.lat.toFixed(6) : '';
   const lng = lngLat && lngLat.lng ? lngLat.lng.toFixed(6) : '';
   const sv = lat && lng ? `https://www.google.com/maps?q=&layer=c&cbll=${lat},${lng}` : '#';
-  const cssVars=`--popup-title-color:${cfg.titleColor};--popup-title-size:${cfg.titleSize}px;--popup-title-bg:${cfg.titleBg};--popup-value-color:${cfg.valueColor};--popup-value-size:${cfg.valueSize}px;--popup-value-bg:${cfg.valueBg};--popup-bg:${cfg.bgColor};--popup-padding:${cfg.padding};--popup-gap:${cfg.gap};--popup-radius:${cfg.radius};font-family:${cfg.fontFamily};max-width:${cfg.maxWidth};`;
+  const cssVars=`--popup-title-color:${cfg.titleColor};--popup-title-size:${cfg.titleSize}px;--popup-title-bg:${colorToRgba(cfg.titleBg, cfg.titleBgOpacity)};--popup-value-color:${cfg.valueColor};--popup-value-size:${cfg.valueSize}px;--popup-value-bg:${colorToRgba(cfg.valueBg, cfg.valueBgOpacity)};--popup-bg:${colorToRgba(cfg.bgColor, cfg.bgOpacity)};--popup-padding:${cfg.padding};--popup-gap:${cfg.gap};--popup-col-gap:${cfg.colGap};--popup-radius:${cfg.radius};font-family:${cfg.fontFamily};max-width:${cfg.maxWidth};`;
   return `<div class="popup-scroll"><div class="popup-runtime" style="${cssVars}"><div class="popup-runtime-header"><span class="popup-runtime-title">${safe(title,'Objet')}</span><a href="${sv}" target="_blank" title="Street View" style="color:#374151;text-decoration:none"><i class="fa-solid fa-street-view"></i></a></div><div class="popup-runtime-body">${rows || '<div class="popup-runtime-value">Aucune valeur renseignée.</div>'}</div></div></div>`;
 }
 function bindPopup(layerId, title){ if(map.__boundPopups?.[layerId]) return; map.__boundPopups = map.__boundPopups || {}; map.on('click', layerId, e=>{ if(selectionMode || measureMode) return; const f=e.features?.[0]; const props=f?.properties||{}; new maplibregl.Popup({maxWidth:'360px'}).setLngLat(e.lngLat).setHTML(popupHtml(title, props, e.lngLat)).addTo(map); if(f){ selection=[makeSelectionFeature(f)]; tableSelectedIds=new Set([selection[0].properties.__fid]); updateTable(); updateStats(); refreshSelectionHighlight(f); } }); map.on('mouseenter', layerId, ()=>map.getCanvas().style.cursor='pointer'); map.on('mouseleave', layerId, ()=>map.getCanvas().style.cursor=''); map.__boundPopups[layerId]=true; }
@@ -1525,7 +1633,7 @@ function addLayerEntry(fc, name){ if(!fc?.features?.length) throw new Error('Auc
     const geom=entry.geometryType; if(geom.includes('Point')){ const circleId=id+'_circle'; entry.layerIds=[circleId]; map.addLayer({id:circleId,type:'circle',source:entry.sourceId,paint:{'circle-radius':entry.sizeMax,'circle-color':entry.fillColor,'circle-opacity':entry.fillOpacity*entry.opacity,'circle-stroke-color':entry.outlineColor,'circle-stroke-width':entry.outlineWidth,'circle-stroke-opacity':entry.outlineOpacity*entry.opacity}}); bindPopup(circleId,'Objet'); }
     else { const fillId=id+'_fill'; const lineId=id+'_line'; entry.layerIds=[fillId,lineId]; map.addLayer({id:fillId,type:'fill',source:entry.sourceId,paint:{'fill-color':entry.fillColor,'fill-opacity':entry.fillOpacity*entry.opacity}}); map.addLayer({id:lineId,type:'line',source:entry.sourceId,paint:{'line-color':entry.outlineColor,'line-width':entry.outlineWidth,'line-opacity':entry.outlineOpacity*entry.opacity}}); bindPopup(fillId,'Objet'); }
   }
-  userLayers.push(entry); syncUserLayers(); applyEntryStyle(entry,true); buildQuickSearchIndex(); updateLayerManager(); updateLegend(); _refreshPopupSelectorWrap(); refreshSearchFields(); refreshStyleLayers(); refreshStatsLayerOptions(); updateStats(); zoomToEntry(entry.id); setStatus('Couche chargée : '+name); }
+  userLayers.push(entry); syncUserLayers(); applyEntryStyle(entry,true); buildQuickSearchIndex(); updateLayerManager(); updateLegend(); _refreshPopupSelectorWrap(); refreshSearchFields(); refreshStyleLayers(); refreshStatsLayerOptions(); updateStats(); setStatus('Couche chargée : '+name); }
 function friendlyLayerType(entry){ if(entry.type==='building') return 'building'; if(entry.type==='parcel') return 'parcel'; if(entry.type==='wms') return 'WMS'; if(entry.type==='wmts') return 'WMTS'; if(entry.type==='remote-tile') return 'tuile'; if(entry.type==='wfs') return 'WFS'; return entry.type||'couche'; }
 function updateLayerManager(){
   const wrap=document.getElementById('layersList');
@@ -1533,44 +1641,65 @@ function updateLayerManager(){
     wrap.innerHTML='<div class="small">Aucune couche importée.</div>';
     return;
   }
-  wrap.innerHTML = userLayers.map(entry=>`
-  <div class="layer-card">
-    <div class="layer-head">
-      <label class="layer-visibility ${entry.visible?'':'off'}" title="${entry.visible?'Couche visible':'Couche masquée'}">
-        <input type="checkbox" ${entry.visible?'checked':''} onchange="toggleEntryVisible('${entry.id}', this.checked)">
-        <span class="layer-visibility-label">${entry.visible?'Visible':'Masquée'}</span>
-      </label>
-      <div class="layer-name">
-        <strong>${entry.name}</strong>
-        <span class="layer-meta">${friendlyLayerType(entry)}</span>
-        <div class="layer-card-topnote">Coche pour afficher/masquer la couche.</div>
+  wrap.innerHTML = userLayers.map(entry=>{
+    const cfg = (entry && entry.labelConfig && typeof entry.labelConfig==='object') ? entry.labelConfig : {};
+    const labelsOn = !!cfg.enabled && !!cfg.field;
+    return `
+    <div class="layer-card">
+      <button class="layer-drag-handle" type="button" draggable="true" data-entry-id="${entry.id}" title="Maintenir et glisser pour réordonner"></button>
+      <div class="layer-head">
+        <div class="layer-name"><strong>${entry.name}</strong></div>
       </div>
-      <div class="layer-actions">
-        <div class="layer-menu-wrap">
-          <button onclick="toggleLayerMenu(event,'${entry.id}')" title="Actions"><i class="fa-solid fa-ellipsis"></i></button>
-          <div id="menu_${entry.id}" class="layer-menu">
-            <button onclick="zoomToEntry('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom sur la couche</button>
-            <button onclick="openStyleForLayer('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-palette"></i> Style et propriétés</button>
-            <button onclick="openTableForLayer('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-table"></i> Afficher la table</button>
-            <button onclick="renameEntry('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-pen"></i> Renommer la couche</button>
-            <button onclick="openPopupConfigPanel('${entry.id}'); closeLayerMenus();"><i class="fa-regular fa-message"></i> Configurer popup</button>
-            <button onclick="toggleEntryVisible('${entry.id}', ${entry.visible?'false':'true'}); closeLayerMenus();"><i class="fa-solid ${entry.visible?'fa-eye-slash':'fa-eye'}"></i> ${entry.visible?'Masquer la couche':'Afficher la couche'}</button>
-            <button class="danger" onclick="removeEntry('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-trash"></i> Supprimer</button>
+      <div class="layer-controls-row">
+        <input class="layer-visible-checkbox" type="checkbox" ${entry.visible?'checked':''} onchange="toggleEntryVisible('${entry.id}', this.checked)" title="Afficher / masquer la couche">
+        <div class="transparency compact-transparency">
+          <input id="opacity_${entry.id}" type="range" min="0" max="1" step="0.01" value="${entry.opacity ?? 1}" oninput="setEntryOpacity('${entry.id}', this.value)" title="Transparence">
+        </div>
+        <button class="layer-label-toggle-btn ${labelsOn?'active':''}" type="button" title="Afficher / masquer les étiquettes" onclick="toggleEntryLabels('${entry.id}', this)">A</button>
+        <div class="layer-actions">
+          <div class="layer-menu-wrap">
+            <button class="layer-action-settings" onclick="toggleLayerMenu(event,'${entry.id}')" title="Actions"><i class="fa-solid fa-sliders"></i></button>
+            <div id="menu_${entry.id}" class="layer-menu">
+              <button onclick="zoomToEntry('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom sur la couche</button>
+              <button onclick="openStyleForLayer('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-palette"></i> Style et propriétés</button>
+              <button onclick="openTableForLayer('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-table"></i> Afficher la table</button>
+              <button onclick="renameEntry('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-pen"></i> Renommer la couche</button>
+              <button onclick="openPopupConfigPanel('${entry.id}'); closeLayerMenus();"><i class="fa-regular fa-message"></i> Configurer popup</button>
+              <button onclick="toggleEntryVisible('${entry.id}', ${entry.visible?'false':'true'}); closeLayerMenus();"><i class="fa-solid ${entry.visible?'fa-eye-slash':'fa-eye'}"></i> ${entry.visible?'Masquer la couche':'Afficher la couche'}</button>
+              <button class="danger" onclick="removeEntry('${entry.id}'); closeLayerMenus();"><i class="fa-solid fa-trash"></i> Supprimer</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="transparency">
-      <span class="small">Transparence</span>
-      <input id="opacity_${entry.id}" type="range" min="0" max="1" step="0.05" value="${entry.opacity ?? 1}" oninput="setEntryOpacity('${entry.id}', this.value)">
-    </div>
-  </div>`).join('');
-}function closeLayerMenus(){ document.querySelectorAll('.layer-menu').forEach(m=>m.classList.remove('open')); }
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.compact-transparency input[type=range]').forEach(setRangeProgress); initAdvancedRanges(document);
+}
+function closeLayerMenus(){ document.querySelectorAll('.layer-menu').forEach(m=>m.classList.remove('open')); }
 function toggleLayerMenu(event,id){ event.stopPropagation(); const menu=document.getElementById('menu_'+id); const wasOpen=menu.classList.contains('open'); closeLayerMenus(); if(!wasOpen) menu.classList.add('open'); }
 function openStyleForLayer(id){ closeLayerMenus(); const panel=document.getElementById('settings'); closePanels(); panel.classList.add('open'); document.body.classList.add('panel-open'); currentStyledLayerId=id; refreshLayerStylePanel(); }
 document.addEventListener('click', closeLayerMenus);
-function toggleEntryVisible(id, visible){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; entry.visible=visible; entry.layerIds.forEach(lid=>{ if(map.getLayer(lid)) map.setLayoutProperty(lid,'visibility',visible?'visible':'none'); }); updateLegend(); updateStats(); }
-function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; const v=Math.max(0, Math.min(1, parseFloat(value))); entry.opacity=v; if(entry.type!=='building') entry.fillOpacity=v; syncOpacityUi(entry); applyEntryStyle(entry,true); updateLegend(); }
+function toggleEntryVisible(id, visible){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; entry.visible=visible; entry.layerIds.forEach(lid=>{ if(map.getLayer(lid)) map.setLayoutProperty(lid,'visibility',visible?'visible':'none'); }); try{ const lid=entry.id+'_labels'; if(map.getLayer(lid)) map.setLayoutProperty(lid,'visibility', (visible && entry.labelConfig && entry.labelConfig.enabled && entry.labelConfig.field) ? 'visible' : 'none'); }catch(e){} updateLegend(); updateStats(); updateLayerManager(); }
+function setRangeProgress(el){
+  if(!el) return;
+  const min = Number(el.min || 0);
+  const max = Number(el.max || 100);
+  const val = Number(el.value || 0);
+  const pct = max === min ? 0 : ((val - min) / (max - min)) * 100;
+  el.style.setProperty('--range-progress', pct + '%');
+}
+function initAdvancedRanges(root=document){
+  root.querySelectorAll('.style-card input[type=range], .popup-config-grid input[type=range], .compact-transparency input[type=range]').forEach(el=>{
+    setRangeProgress(el);
+    if(!el.dataset.rangeBound){
+      el.addEventListener('input', ()=>setRangeProgress(el), {passive:true});
+      el.dataset.rangeBound='1';
+    }
+  });
+}
+function setEntryOpacity(id, value){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; const v=Math.max(0, Math.min(1, parseFloat(value))); entry.opacity=v; const slider=document.getElementById('opacity_'+id); if(slider){ slider.value=v; setRangeProgress(slider); } if(entry.type!=='building') entry.fillOpacity=v; syncOpacityUi(entry); applyEntryStyle(entry,true); updateLegend(); }
+
+function toggleEntryLabels(id, btn){ const entry=userLayers.find(x=>x.id===id); if(!entry) return; const cfg=(entry.labelConfig && typeof entry.labelConfig==='object') ? entry.labelConfig : {}; const next=!((cfg.enabled===true) && cfg.field); cfg.enabled=next; if(next && !cfg.field){ cfg.field='idparcelle'; const first=(entry.data && entry.data.features && entry.data.features[0] && entry.data.features[0].properties) ? Object.keys(entry.data.features[0].properties) : []; if(!first.includes('idparcelle')) cfg.field=first[0] || ''; } cfg.color=cfg.color || '#ffffff'; cfg.size=Number(cfg.size||10); cfg.placement=cfg.placement || 'center'; cfg.overlap=!!cfg.overlap; cfg.autoZoom = cfg.autoZoom!==false; cfg.minzoom = Number(cfg.minzoom||15); cfg.densityAdaptive = cfg.densityAdaptive!==false; entry.labelConfig=cfg; try{ if(typeof window.ensureLabelLayer==='function') window.ensureLabelLayer(entry); }catch(e){} if(btn) btn.classList.toggle('active', !!(cfg.enabled && cfg.field)); }
 function renameEntry(id){
   const entry=userLayers.find(x=>x.id===id);
   if(!entry) return;
@@ -1591,18 +1720,22 @@ function renameEntry(id){
 function getDefaultPopupConfig(entry){
   const cfg=entry && entry.popupConfig && typeof entry.popupConfig==='object' ? entry.popupConfig : {};
   return {
-    fontFamily: String(cfg.fontFamily || 'Segoe UI, Arial, sans-serif'),
-    maxWidth: String(cfg.maxWidth || '360px'),
-    titleColor: String(cfg.titleColor || '#111827'),
-    titleSize: String(cfg.titleSize || '13'),
+    fontFamily: String(cfg.fontFamily || 'Segoe UI'),
+    maxWidth: String(cfg.maxWidth || '200px'),
+    titleColor: String(cfg.titleColor || '#000000'),
+    titleSize: String(cfg.titleSize || '10'),
     titleBg: String(cfg.titleBg || '#ffffff'),
-    valueColor: String(cfg.valueColor || '#374151'),
-    valueSize: String(cfg.valueSize || '11'),
+    titleBgOpacity: normalizePopupOpacityValue(cfg.titleBgOpacity, '1'),
+    valueColor: String(cfg.valueColor || '#2563eb'),
+    valueSize: String(cfg.valueSize || '10'),
     valueBg: String(cfg.valueBg || '#ffffff'),
+    valueBgOpacity: normalizePopupOpacityValue(cfg.valueBgOpacity, '1'),
     bgColor: String(cfg.bgColor || '#ffffff'),
-    padding: String(cfg.padding || '8px'),
-    gap: String(cfg.gap || '4px'),
-    radius: String(cfg.radius || '10px')
+    bgOpacity: normalizePopupOpacityValue(cfg.bgOpacity, '1'),
+    padding: String(cfg.padding || '2px'),
+    gap: String(cfg.gap || '2px'),
+    colGap: String(cfg.colGap || '6px'),
+    radius: String(cfg.radius || '5px')
   };
 }
 function ensurePopupConfig(entry){
@@ -1640,6 +1773,26 @@ function normalizePopupNumberValue(value, fallback){
   const parsed=Number(raw.replace(',', '.'));
   return Number.isFinite(parsed) ? String(parsed) : String(fallback);
 }
+function normalizePopupOpacityValue(value, fallback){
+  const raw=String(value ?? '').trim();
+  const parsed=Number(raw.replace(',', '.'));
+  const safe=Number.isFinite(parsed) ? parsed : Number(fallback);
+  return String(Math.max(0, Math.min(1, safe)));
+}
+function colorToRgba(color, opacity){
+  const hex=String(color || '').trim();
+  const alpha=Math.max(0, Math.min(1, Number(opacity ?? 1)));
+  const m=hex.match(/^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
+  if(!m) return color || 'transparent';
+  const r=parseInt(m[1],16), g=parseInt(m[2],16), b=parseInt(m[3],16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+function syncPopupOpacityLabel(id){
+  const input=document.getElementById(id);
+  const label=document.getElementById(id+'Value');
+  if(input && label) label.textContent=Number(input.value || 0).toFixed(2);
+  if(input) setRangeProgress(input);
+}
 
 function updatePopupConfigPreview(){
   const preview=document.getElementById('popupConfigPreview');
@@ -1648,21 +1801,25 @@ function updatePopupConfigPreview(){
   const sample=((entry.data&&entry.data.features&&entry.data.features[0])||{}).properties||{};
   const displayProps=getPopupProps(Object.assign({}, entry, {popupFields:[...(window.__popupConfigDraftFields||[])]}), sample);
   const cfg={
-    titleColor: document.getElementById('popupTitleColor')?.value || '#111827',
-    titleSize: normalizePopupNumberValue(document.getElementById('popupTitleSize')?.value, '13'),
+    titleColor: document.getElementById('popupTitleColor')?.value || '#000000',
+    titleSize: normalizePopupNumberValue(document.getElementById('popupTitleSize')?.value, '10'),
     titleBg: document.getElementById('popupTitleBg')?.value || '#ffffff',
-    valueColor: document.getElementById('popupValueColor')?.value || '#374151',
-    valueSize: normalizePopupNumberValue(document.getElementById('popupValueSize')?.value, '11'),
+    titleBgOpacity: normalizePopupOpacityValue(document.getElementById('popupTitleBgOpacity')?.value, '1'),
+    valueColor: document.getElementById('popupValueColor')?.value || '#2563eb',
+    valueSize: normalizePopupNumberValue(document.getElementById('popupValueSize')?.value, '10'),
     valueBg: document.getElementById('popupValueBg')?.value || '#ffffff',
+    valueBgOpacity: normalizePopupOpacityValue(document.getElementById('popupValueBgOpacity')?.value, '1'),
     bgColor: document.getElementById('popupBgColor')?.value || '#ffffff',
-    padding: normalizePopupPixelValue(document.getElementById('popupPadding')?.value, '8px'),
-    gap: normalizePopupPixelValue(document.getElementById('popupGap')?.value, '4px'),
-    radius: normalizePopupPixelValue(document.getElementById('popupRadius')?.value, '10px'),
-    fontFamily: document.getElementById('popupFontFamily')?.value || 'Segoe UI, Arial, sans-serif',
-    maxWidth: normalizePopupPixelValue(document.getElementById('popupMaxWidth')?.value, '360px')
+    bgOpacity: normalizePopupOpacityValue(document.getElementById('popupBgOpacity')?.value, '1'),
+    padding: normalizePopupPixelValue(document.getElementById('popupPadding')?.value, '2px'),
+    gap: normalizePopupPixelValue(document.getElementById('popupGap')?.value, '2px'),
+    colGap: normalizePopupPixelValue(document.getElementById('popupColGap')?.value, '6px'),
+    radius: normalizePopupPixelValue(document.getElementById('popupRadius')?.value, '5px'),
+    fontFamily: document.getElementById('popupFontFamily')?.value || 'Segoe UI',
+    maxWidth: normalizePopupPixelValue(document.getElementById('popupMaxWidth')?.value, '200px')
   };
   const rows=Object.entries(displayProps).slice(0,6).map(([k,v])=>`<div class="popup-runtime-row"><div class="popup-runtime-key">${safe(k,'')}</div><div class="popup-runtime-value">${safe(v,'—')}</div></div>`).join('') || '<div class="popup-runtime-value">Aucune valeur</div>';
-  const cssVars=`--popup-title-color:${cfg.titleColor};--popup-title-size:${cfg.titleSize}px;--popup-title-bg:${cfg.titleBg};--popup-value-color:${cfg.valueColor};--popup-value-size:${cfg.valueSize}px;--popup-value-bg:${cfg.valueBg};--popup-bg:${cfg.bgColor};--popup-padding:${cfg.padding};--popup-gap:${cfg.gap};--popup-radius:${cfg.radius};font-family:${cfg.fontFamily};max-width:${cfg.maxWidth};`;
+  const cssVars=`--popup-title-color:${cfg.titleColor};--popup-title-size:${cfg.titleSize}px;--popup-title-bg:${colorToRgba(cfg.titleBg, cfg.titleBgOpacity)};--popup-value-color:${cfg.valueColor};--popup-value-size:${cfg.valueSize}px;--popup-value-bg:${colorToRgba(cfg.valueBg, cfg.valueBgOpacity)};--popup-bg:${colorToRgba(cfg.bgColor, cfg.bgOpacity)};--popup-padding:${cfg.padding};--popup-gap:${cfg.gap};--popup-col-gap:${cfg.colGap};--popup-radius:${cfg.radius};font-family:${cfg.fontFamily};max-width:${cfg.maxWidth};`;
   preview.innerHTML=`<div class="popup-runtime" style="${cssVars};width:${cfg.maxWidth}"><div class="popup-runtime-header"><span class="popup-runtime-title">${safe(entry.name,'Couche')}</span><i class="fa-solid fa-street-view" style="color:#6b7280"></i></div><div class="popup-runtime-body">${rows}</div></div>`;
 }
 
@@ -1689,18 +1846,26 @@ function openPopupConfigPanel(id){
   const titleColor=document.getElementById('popupTitleColor'); if(titleColor) titleColor.value = cfg.titleColor;
   const titleSize=document.getElementById('popupTitleSize'); if(titleSize) titleSize.value = cfg.titleSize;
   const titleBg=document.getElementById('popupTitleBg'); if(titleBg) titleBg.value = cfg.titleBg;
+  const titleBgOpacity=document.getElementById('popupTitleBgOpacity'); if(titleBgOpacity) titleBgOpacity.value = cfg.titleBgOpacity;
+  syncPopupOpacityLabel('popupTitleBgOpacity');
   const valueColor=document.getElementById('popupValueColor'); if(valueColor) valueColor.value = cfg.valueColor;
   const valueSize=document.getElementById('popupValueSize'); if(valueSize) valueSize.value = cfg.valueSize;
   const valueBg=document.getElementById('popupValueBg'); if(valueBg) valueBg.value = cfg.valueBg;
+  const valueBgOpacity=document.getElementById('popupValueBgOpacity'); if(valueBgOpacity) valueBgOpacity.value = cfg.valueBgOpacity;
+  syncPopupOpacityLabel('popupValueBgOpacity');
   const bgColor=document.getElementById('popupBgColor'); if(bgColor) bgColor.value = cfg.bgColor;
+  const bgOpacity=document.getElementById('popupBgOpacity'); if(bgOpacity) bgOpacity.value = cfg.bgOpacity;
+  syncPopupOpacityLabel('popupBgOpacity');
   const padding=document.getElementById('popupPadding'); if(padding) padding.value = cfg.padding;
   const gap=document.getElementById('popupGap'); if(gap) gap.value = cfg.gap;
+  const colGap=document.getElementById('popupColGap'); if(colGap) colGap.value = cfg.colGap;
   const radius=document.getElementById('popupRadius'); if(radius) radius.value = cfg.radius;
   const fontFamily=document.getElementById('popupFontFamily'); if(fontFamily) fontFamily.value = cfg.fontFamily;
   const maxWidth=document.getElementById('popupMaxWidth'); if(maxWidth) maxWidth.value = cfg.maxWidth;
   renderPopupFieldSelection();
   updatePopupConfigPreview();
-  if(overlay) overlay.classList.add('open');
+  initAdvancedRanges(document);
+  if(overlay){ overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); }
 }
 function addPopupFieldSelection(){
   const entry=userLayers.find(x=>x.id===window.__popupConfigLayerId);
@@ -1742,23 +1907,28 @@ function savePopupConfigPanel(){
   if(!entry) return;
   entry.popupFields = [...(window.__popupConfigDraftFields || [])];
   entry.popupConfig = {
-    titleColor: String(document.getElementById('popupTitleColor')?.value || '#111827'),
-    titleSize: normalizePopupNumberValue(document.getElementById('popupTitleSize')?.value, '13'),
+    titleColor: String(document.getElementById('popupTitleColor')?.value || '#000000'),
+    titleSize: normalizePopupNumberValue(document.getElementById('popupTitleSize')?.value, '10'),
     titleBg: String(document.getElementById('popupTitleBg')?.value || '#ffffff'),
-    valueColor: String(document.getElementById('popupValueColor')?.value || '#374151'),
-    valueSize: normalizePopupNumberValue(document.getElementById('popupValueSize')?.value, '11'),
+    titleBgOpacity: normalizePopupOpacityValue(document.getElementById('popupTitleBgOpacity')?.value, '1'),
+    valueColor: String(document.getElementById('popupValueColor')?.value || '#2563eb'),
+    valueSize: normalizePopupNumberValue(document.getElementById('popupValueSize')?.value, '10'),
     valueBg: String(document.getElementById('popupValueBg')?.value || '#ffffff'),
+    valueBgOpacity: normalizePopupOpacityValue(document.getElementById('popupValueBgOpacity')?.value, '1'),
     bgColor: String(document.getElementById('popupBgColor')?.value || '#ffffff'),
-    padding: normalizePopupPixelValue(document.getElementById('popupPadding')?.value, '8px'),
-    gap: normalizePopupPixelValue(document.getElementById('popupGap')?.value, '4px'),
-    radius: normalizePopupPixelValue(document.getElementById('popupRadius')?.value, '10px'),
-    fontFamily: String(document.getElementById('popupFontFamily')?.value || 'Segoe UI, Arial, sans-serif'),
-    maxWidth: normalizePopupPixelValue(document.getElementById('popupMaxWidth')?.value, '360px')
+    bgOpacity: normalizePopupOpacityValue(document.getElementById('popupBgOpacity')?.value, '1'),
+    padding: normalizePopupPixelValue(document.getElementById('popupPadding')?.value, '2px'),
+    gap: normalizePopupPixelValue(document.getElementById('popupGap')?.value, '2px'),
+    colGap: normalizePopupPixelValue(document.getElementById('popupColGap')?.value, '6px'),
+    radius: normalizePopupPixelValue(document.getElementById('popupRadius')?.value, '5px'),
+    fontFamily: String(document.getElementById('popupFontFamily')?.value || 'Segoe UI'),
+    maxWidth: normalizePopupPixelValue(document.getElementById('popupMaxWidth')?.value, '200px')
   };
   closePopupConfigPanel();
 }
-['popupTitleColor','popupTitleSize','popupTitleBg','popupValueColor','popupValueSize','popupValueBg','popupBgColor','popupPadding','popupGap','popupRadius','popupFontFamily','popupMaxWidth'].forEach(id=>{ const node=document.getElementById(id); if(node){ node.addEventListener('change', updatePopupConfigPreview); node.addEventListener('input', updatePopupConfigPreview); } });
+['popupTitleColor','popupTitleSize','popupTitleBg','popupTitleBgOpacity','popupValueColor','popupValueSize','popupValueBg','popupValueBgOpacity','popupBgColor','popupBgOpacity','popupPadding','popupGap','popupColGap','popupRadius','popupFontFamily','popupMaxWidth'].forEach(id=>{ const node=document.getElementById(id); if(node){ node.addEventListener('change', updatePopupConfigPreview); node.addEventListener('input', ()=>{ if(id.endsWith('Opacity')) syncPopupOpacityLabel(id); updatePopupConfigPreview(); }); if(id.endsWith('Opacity')) syncPopupOpacityLabel(id); } });
 document.getElementById('popupConfigOverlay')?.addEventListener('click', e=>{ if(e.target?.id==='popupConfigOverlay') closePopupConfigPanel(); });
+initAdvancedRanges(document);
 function removeEntry(id){ const idx=userLayers.findIndex(x=>x.id===id); if(idx<0) return; const entry=userLayers[idx]; entry.layerIds.forEach(lid=>{ if(map.getLayer(lid)) map.removeLayer(lid); }); if(map.getSource(entry.sourceId)) map.removeSource(entry.sourceId); userLayers.splice(idx,1); buildQuickSearchIndex(); updateLayerManager(); updateLegend(); refreshSearchFields(); _refreshPopupSelectorWrap(); refreshStyleLayers(); updateTable(); refreshStatsLayerOptions(); updateStats(); }
 function updateLegend(){ const list=document.getElementById('legendList'); const visible=userLayers.filter(x=>x.visible && x.showInLegend!==false); if(!visible.length){ list.innerHTML='<div class="small">Aucune couche visible.</div>'; return; } list.innerHTML = visible.map(e=>`<div class="legend-item"><b>${e.name}</b><div class="small">${friendlyLayerType(e)}</div>${e.legendUrl?`<img class="legend-thumb" src="${e.legendUrl}" alt="Légende ${e.name}">`:`<div style="margin-top:7px"><span class="color-chip" style="background:${e.color||'#64748b'}"></span><span class="small">Rendu principal</span></div>`}${e.type==='building'?'<div class="small" style="margin-top:6px">Extrusion 3D active.</div>':''}</div>`).join(''); }
 function refreshSearchFields(){ const select=document.getElementById('searchLayer'); const field=document.getElementById('searchField'); const layers=userLayers; select.innerHTML = layers.length ? layers.map(u=>`<option value="${u.id}">${u.name}</option>`).join('') : '<option value="">Aucune couche</option>'; const entry=userLayers.find(u=>u.id===select.value) || userLayers[0]; if(!entry){ field.innerHTML='<option value="">Aucun champ</option>'; return; } const keys=filteredPropertyKeys((entry.data.features[0]||{}).properties||{}); field.innerHTML = keys.map(k=>`<option value="${k}">${k}</option>`).join(''); }
@@ -2436,13 +2606,19 @@ setTimeout(()=>{
 
 map.on('load', ()=>{ initPanelResizers(); applyImportLockUI(); updateLayerManager(); updateLegend(); updateTable(); updateStats(); refreshSearchFields(); refreshStyleLayers(); refreshStatsLayerOptions(); ensureMeasureLayers(); if(EMBEDDED) restoreProject(EMBEDDED); buildQuickSearchIndex(); const basemapLayer=(map.getStyle().layers||[]).find(l=>l.id==='basemap'); updateBasemapAttribution(basemapLayer?.source||'positron'); setStatus('Conception Domofrance - Direction Valorisation du Patrimoine / sigdomofrance@domofrance.fr'); });
 function prepareStandaloneClone(lockImports=false){
-  const project=buildProjectObject();
-  let html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
-  const payload=`<script>window.__SIGAF_EMBEDDED_PROJECT=${JSON.stringify(project)};window.__LOCK_IMPORTS__=${lockImports?'true':'false'};<\/script>`;
-  if(html.includes('</head>')) html=html.replace('</head>', payload+'\n</head>');
-  else html = payload + html;
+  const project = buildProjectObject();
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const payload = `<script>window.__SIGAF_EMBEDDED_PROJECT=${JSON.stringify(project)};window.__LOCK_IMPORTS__=${lockImports ? 'true' : 'false'};<\/script>`;
+  const insertBefore = '</head>';
+  const idx = html.lastIndexOf(insertBefore);
+  if(idx !== -1){
+    html = html.slice(0, idx) + payload + '\n' + html.slice(idx);
+  } else {
+    html = payload + html;
+  }
   return html;
 }
+
 function saveMapProject(){
   const n=_getExportName('carte_export.html');
   const blob=new Blob([prepareStandaloneClone(false)],{type:'text/html'});
@@ -2468,7 +2644,7 @@ const streetViewImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAY
   window.popupHtml = function(title, props, lngLat, entry){
     let cleaned = props || {};
     try{ cleaned = (typeof getPopupProps === 'function') ? getPopupProps(entry, props || {}) : (typeof sanitizedProperties === 'function' ? sanitizedProperties(props || {}) : (props || {})); }catch(e){}
-    const cfg = (typeof getDefaultPopupConfig === 'function') ? getDefaultPopupConfig(entry) : {titleColor:'#111827',titleSize:'14',titleBg:'#f3f4f6',valueColor:'#374151',valueSize:'12',valueBg:'#ffffff',bgColor:'#ffffff',padding:'8px',gap:'6px',radius:'10px',fontFamily:'Segoe UI, Arial, sans-serif',maxWidth:'360px'};
+    const cfg = (typeof getDefaultPopupConfig === 'function') ? getDefaultPopupConfig(entry) : {titleColor:'#000000',titleSize:'10',titleBg:'transparent',valueColor:'#2563eb',valueSize:'10',valueBg:'transparent',bgColor:'#ffffff',padding:'2px',gap:'2px',colGap:'6px',radius:'5px',fontFamily:'Segoe UI, Arial, sans-serif',maxWidth:'240px'};
     const rows = Object.entries(cleaned)
       .filter(([k,v]) => !String(k).startsWith('__') && v !== null && v !== undefined && String(v) !== '')
       .slice(0, 100)
@@ -2477,7 +2653,7 @@ const streetViewImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAY
     const lat = lngLat && Number.isFinite(lngLat.lat) ? lngLat.lat.toFixed(6) : '';
     const lng = lngLat && Number.isFinite(lngLat.lng) ? lngLat.lng.toFixed(6) : '';
     const sv = lat && lng ? `https://www.google.com/maps?q=&layer=c&cbll=${lat},${lng}` : '#';
-    const cssVars = `--popup-title-color:${cfg.titleColor};--popup-title-size:${cfg.titleSize}px;--popup-title-bg:${cfg.titleBg};--popup-value-color:${cfg.valueColor};--popup-value-size:${cfg.valueSize}px;--popup-value-bg:${cfg.valueBg};--popup-bg:${cfg.bgColor};--popup-padding:${cfg.padding};--popup-gap:${cfg.gap};--popup-radius:${cfg.radius};font-family:${cfg.fontFamily};max-width:${cfg.maxWidth};`;
+    const cssVars = `--popup-title-color:${cfg.titleColor};--popup-title-size:${cfg.titleSize}px;--popup-title-bg:${cfg.titleBg};--popup-value-color:${cfg.valueColor};--popup-value-size:${cfg.valueSize}px;--popup-value-bg:${cfg.valueBg};--popup-bg:${cfg.bgColor};--popup-padding:${cfg.padding};--popup-gap:${cfg.gap};--popup-col-gap:${cfg.colGap};--popup-radius:${cfg.radius};font-family:${cfg.fontFamily};max-width:${cfg.maxWidth};`;
     return `<div class="popup-scroll"><div class="popup-runtime" style="${cssVars}">
       <div class="popup-runtime-header">
         <a href="${sv}" target="_blank" title="Street View" style="display:inline-flex;align-items:center;text-decoration:none;flex:0 0 auto">
@@ -2589,10 +2765,16 @@ const streetViewImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAY
         if(label) label.textContent = entry.visible ? 'Visible' : 'Masquée';
         if(note) note.textContent = 'Couche WFS active. Coche pour afficher/masquer la couche.';
       }
-      card.draggable = true;
-      card.style.cursor = 'grab';
-      card.ondragstart = ()=>{ window.__dragLayerIndex = idx; card.style.opacity='.45'; };
-      card.ondragend = ()=>{ window.__dragLayerIndex = -1; card.style.opacity=''; };
+      card.draggable = false;
+      card.style.cursor = '';
+      const dragHandle = card.querySelector('.layer-drag-handle');
+      if(dragHandle){
+        dragHandle.draggable = true;
+        dragHandle.ondragstart = (e)=>{ window.__dragLayerIndex = idx; card.style.opacity='.45'; try{ e.dataTransfer.effectAllowed='move'; }catch(_e){} };
+        dragHandle.ondragend = ()=>{ window.__dragLayerIndex = -1; card.style.opacity=''; card.style.outline=''; };
+      }
+      card.ondragstart = null;
+      card.ondragend = null;
       card.ondragover = (e)=>{ e.preventDefault(); card.style.outline='2px dashed #2563eb'; card.style.outlineOffset='-2px'; };
       card.ondragleave = ()=>{ card.style.outline=''; };
       card.ondrop = (e)=>{ 
@@ -3439,6 +3621,83 @@ async function fetchWfsPage(baseUrl, version, typeNames, bboxParam, pageSize, ma
   else bindOnce();
 })();
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="labelConfigOverlay" class="label-config-overlay" aria-hidden="true">
+  <div class="label-config-dialog" role="dialog" aria-modal="true" aria-labelledby="labelConfigTitle">
+    <div class="popup-config-header">
+      <div><div id="labelConfigTitle" class="popup-config-title">Configurer étiquettes</div><div class="popup-config-subtitle">Choix du champ et style des labels</div></div>
+      <button class="popup-config-close" type="button" onclick="closeLabelConfigPanel()">×</button>
+    </div>
+    <div class="label-grid">
+      <div class="label-section">
+        <h4 style="margin:0 0 8px 0">Attribut</h4>
+        <label class="small">Champ affiché</label>
+        <select id="labelFieldSelect"></select>
+        <div class="label-placement-help">Le champ choisi sera affiché sur la carte pour cette couche.</div>
+        <h4 style="margin:14px 0 8px 0">Style</h4>
+        <div class="style-row">
+          <div><label class="small">Police</label><select id="labelFontFamily"><option value="Open Sans Regular">Open Sans</option><option value="Arial Unicode MS Regular">Arial</option><option value="Noto Sans Regular">Noto Sans</option></select></div>
+          <div><label class="small">Taille</label><select id="labelFontSize"><option value="10">10 px</option><option value="11">11 px</option><option value="12">12 px</option><option value="14">14 px</option><option value="16">16 px</option><option value="18">18 px</option></select></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Couleur</label><input id="labelColor" type="color" value="#1f2937"></div>
+          <div><label class="small">Halo</label><input id="labelHaloColor" type="color" value="#ffffff"></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Placement</label><select id="labelPlacement"><option value="center">Centré</option><option value="point">Point</option><option value="line">Ligne</option><option value="line-center">Ligne centrée</option><option value="inside">Intérieur</option><option value="outside">Extérieur</option></select></div>
+          <div><label class="small">Superposition</label><select id="labelOverlap"><option value="false">Éviter les chevauchements</option><option value="true">Autoriser</option></select></div>
+        </div>
+      </div>
+      <div class="label-section">
+        <h4 style="margin:0 0 8px 0">Aperçu</h4>
+        <div id="labelConfigPreview" class="label-preview"></div>
+      </div>
+    </div>
+    <div class="label-actions"><button type="button" onclick="closeLabelConfigPanel()">Annuler</button><button type="button" onclick="saveLabelConfigPanel()"><i class="fa-solid fa-check"></i> Enregistrer</button></div>
+  </div>
+</div>
+<div id="thematicConfigOverlay" class="thematic-config-overlay" aria-hidden="true">
+  <div class="thematic-config-dialog" role="dialog" aria-modal="true" aria-labelledby="thematicConfigTitle">
+    <div class="popup-config-header">
+      <div><div id="thematicConfigTitle" class="popup-config-title">Analyse thématique</div><div class="popup-config-subtitle">Classification, palette et contour</div></div>
+      <button class="popup-config-close" type="button" onclick="closeThematicConfigPanel()">×</button>
+    </div>
+    <div class="thematic-grid">
+      <div class="thematic-section">
+        <div class="style-row">
+          <div><label class="small">Méthode</label><select id="thematicMethod"><option value="categorical">Catégories</option><option value="quantile">Quantiles</option></select></div>
+          <div><label class="small">Classes</label><select id="thematicClassCount"><option>3</option><option selected>5</option><option>7</option></select></div>
+        </div>
+        <div class="style-row" style="margin-top:10px">
+          <div><label class="small">Couleur contour</label><input id="thematicOutlineColor" type="color" value="#334155"></div>
+          <div><label class="small">Épaisseur contour</label><input id="thematicOutlineWidth" type="range" min="0" max="6" step="0.5" value="1.5"></div>
+        </div>
+        <div class="small" style="margin-top:10px">Palette</div>
+        <div id="thematicPaletteSwatches" class="thematic-swatches"></div>
+      </div>
+      <div class="thematic-section"><h4 style="margin:0 0 8px 0">Aperçu</h4><div id="thematicPreview" class="thematic-preview"></div></div>
+    </div>
+    <div class="thematic-actions"><button type="button" onclick="closeThematicConfigPanel()">Annuler</button><button type="button" onclick="saveThematicConfigPanel()"><i class="fa-solid fa-check"></i> Appliquer</button></div>
+  </div>
+</div>
+
+
+
+
+
 <style id="v2-final-adjustments">
 #numericFieldWrap, #styleExpression{display:none !important;}
 #styleExpression{display:none !important;}
@@ -3466,8 +3725,18 @@ label[for="styleExpression"]{display:none !important;}
     const extrusion=document.getElementById('extrusionControls');
     if(host && extrusion && !host.contains(extrusion)) host.appendChild(extrusion);
   }
-
- window.updatePitchDisplay=function(v){ const n=Number(v||0); const out=document.getElementById('pitch3dValue'); if(out) out.textContent=String(n); try{ map.easeTo({pitch:n,duration:80}); }catch(e){} };
+  function rebuildLabelDialog(){
+    const haloWrap=document.getElementById('labelHaloColor')?.closest('div');
+    if(haloWrap) haloWrap.style.display='none';
+    const overlapWrap=document.getElementById('labelOverlap')?.closest('div');
+    if(overlapWrap && !document.getElementById('labelAutoZoom')){
+      const row=overlapWrap.parentElement;
+      const auto=document.createElement('div');
+      auto.innerHTML='<label class="small">Police selon zoom</label><select id="labelAutoZoom"><option value="true">Automatique</option><option value="false">Fixe</option></select>';
+      row.appendChild(auto);
+    }
+  }
+  window.updatePitchDisplay=function(v){ const n=Number(v||0); const out=document.getElementById('pitch3dValue'); if(out) out.textContent=String(n); try{ map.easeTo({pitch:n,duration:80}); }catch(e){} };
   window.setPitchPreset=function(v){ const r=document.getElementById('pitch3dRange'); if(r){ r.value=String(v); } updatePitchDisplay(v); };
   window.toggleManagedBuildings3D=function(on){ if(on){ setBasemap3dBuildings('osm3d'); } else { try{ _removeBuildings3dLayers(); }catch(e){} window.__current3dBldgMode=null; const cb=document.getElementById('buildings3dEnabled'); if(cb) cb.checked=false; } };
   const oldRefresh=window.refreshLayerStyleUi;
@@ -3503,7 +3772,53 @@ label[for="styleExpression"]{display:none !important;}
       if(entry && typeof openThematicConfigPanel==='function') openThematicConfigPanel(entry.id);
     }
   });
-  
+  window.openLabelConfigPanelSafe = function(id){
+    try{ if(typeof window.openLabelConfigPanel === 'function') window.openLabelConfigPanel(id); }catch(e){ console.error(e); }
+    const overlay = document.getElementById('labelConfigOverlay');
+    if(overlay) overlay.classList.add('open');
+  };
+
+  window.openLabelConfigPanel=function(id){
+    const entry=getEntry(id); if(!entry) return;
+    window.currentLabelEntryId=id;
+    const cfg=Object.assign({field:'',font:'Open Sans Regular',size:12,color:'#1f2937',placement:'center',overlap:false,autoZoom:true}, entry.labelConfig||{});
+    const fields=(typeof filteredPropertyKeys==='function')?filteredPropertyKeys((entry.data?.features?.[0]||{}).properties||{}):Object.keys((entry.data?.features?.[0]||{}).properties||{});
+    const sel=document.getElementById('labelFieldSelect');
+    if(sel) sel.innerHTML='<option value="">Aucune étiquette</option>'+fields.map(f=>`<option value="${f}">${f}</option>`).join('');
+    if(sel) sel.value=cfg.field||'';
+    document.getElementById('labelFontFamily').value=cfg.font;
+    document.getElementById('labelFontSize').value=String(cfg.size||12);
+    document.getElementById('labelColor').value=cfg.color||'#1f2937';
+    const az=document.getElementById('labelAutoZoom'); if(az) az.value=String(cfg.autoZoom!==false);
+    document.getElementById('labelPlacement').value=cfg.placement||'center';
+    document.getElementById('labelOverlap').value=String(!!cfg.overlap);
+    document.getElementById('labelConfigOverlay').classList.add('open'); document.getElementById('labelConfigOverlay').setAttribute('aria-hidden','false');
+    window.renderLabelPreview();
+  };
+  window.renderLabelPreview=function(){
+    const entry=getEntry(window.currentLabelEntryId); const box=document.getElementById('labelConfigPreview'); if(!entry||!box) return;
+    const font=document.getElementById('labelFontFamily').value; const size=Number(document.getElementById('labelFontSize').value||12); const color=document.getElementById('labelColor').value;
+    const field=document.getElementById('labelFieldSelect').value;
+    const sample=field ? String((entry.data?.features?.[0]?.properties||{})[field] ?? field) : 'Aperçu étiquette';
+    box.innerHTML=`<div style="font-family:${font.includes('Open Sans')?'Arial':font.split(' ')[0]};font-size:${size}px;color:${color};padding:18px;text-align:center">${sample}</div>`;
+  };
+  window.ensureLabelLayer=function(entry){
+    if(!entry || !entry.sourceId) return;
+    const id=entry.id+'_labels';
+    if(map.getLayer(id)) try{ map.removeLayer(id); }catch(e){}
+    if(!entry.labelConfig?.field) return;
+    const cfg=entry.labelConfig||{};
+    const fieldExpr=['to-string',['coalesce',['get',cfg.field],'']];
+    const anchorMap={center:'center',point:'center',line:'center', 'line-center':'center',inside:'center',outside:'top'};
+    const textSize=cfg.autoZoom===false ? (cfg.size||12) : ['interpolate',['linear'],['zoom'],10,Math.max(10,(cfg.size||12)*0.75),16,cfg.size||12,20,Math.min(28,(cfg.size||12)*1.45)];
+    map.addLayer({id, type:'symbol', source:entry.sourceId, layout:{'text-field':fieldExpr,'text-size':textSize,'text-font':[cfg.font||'Open Sans Regular','Arial Unicode MS Regular'],'text-anchor':anchorMap[cfg.placement]||'center','symbol-placement':(cfg.placement||'center').startsWith('line')?'line':'point','text-allow-overlap':!!cfg.overlap,'text-variable-anchor': cfg.placement==='outside' ? ['top','bottom','left','right'] : ['center']}, paint:{'text-color':cfg.color||'#1f2937','text-halo-width':0}}, undefined);
+  };
+  window.saveLabelConfigPanel=function(){
+    const entry=getEntry(window.currentLabelEntryId); if(!entry) return;
+    entry.labelConfig={ field:document.getElementById('labelFieldSelect').value||'', font:document.getElementById('labelFontFamily').value, size:Number(document.getElementById('labelFontSize').value||12), color:document.getElementById('labelColor').value, placement:document.getElementById('labelPlacement').value, overlap:document.getElementById('labelOverlap').value==='true', autoZoom:(document.getElementById('labelAutoZoom')?.value||'true')==='true' };
+    window.ensureLabelLayer(entry);
+    if(typeof closeLabelConfigPanel==='function') closeLabelConfigPanel();
+  };
   function sync3DPanel(){
     const cb=document.getElementById('buildings3dEnabled'); if(cb) cb.checked=!!window.__current3dBldgMode;
     const r=document.getElementById('pitch3dRange'); const val=Math.round(map.getPitch()); if(r) r.value=String(val); const out=document.getElementById('pitch3dValue'); if(out) out.textContent=String(val);
@@ -3893,76 +4208,651 @@ document.addEventListener('transitionend', (e)=>{
 })();
 </script>
 
-   
-  const oldAddLayerEntry = window.addLayerEntry;
-  if(typeof oldAddLayerEntry === 'function'){
-    window.addLayerEntry = function(fc, name){
-      const result = oldAddLayerEntry.apply(this, arguments);
-      try{
-        const layers = Array.isArray(window.userLayers) ? window.userLayers : [];
-        const entry = layers[layers.length - 1] || null;
-        if(entry){
-          applyAutoLabelConfig(entry, true);
-          window.ensureLabelLayer(entry);
+
+<script id="labels-clean-unified-v1">
+(function(){
+  const map = window.map;
+  if(!map) return;
+
+  function entries(){ return Array.isArray(window.userLayers) ? window.userLayers : []; }
+  function getEntryByIdSafe(id){
+    return entries().find(e => e && e.id === id) || null;
+  }
+  function firstProps(entry){ return entry?.data?.features?.[0]?.properties || {}; }
+  function labelLayerId(entry){ return entry ? entry.id + '_labels' : ''; }
+  function removeLabelLayer(entry){
+    const id = labelLayerId(entry);
+    if(!id) return;
+    try{ if(map.getLayer(id)) map.removeLayer(id); }catch(e){}
+  }
+  function defaultLabelField(entry){
+    const keys = Object.keys(firstProps(entry)).filter(k => !String(k).startsWith('__'));
+    const hit = keys.find(k => String(k).toLowerCase() === 'idparcelle');
+    return hit || keys[0] || '';
+  }
+  function getLabelConfig(entry){
+    const cur = (entry && entry.labelConfig && typeof entry.labelConfig === 'object') ? entry.labelConfig : {};
+    return Object.assign({
+      enabled: false,
+      field: defaultLabelField(entry),
+      font: 'Open Sans Regular',
+      size: 11,
+      color: '#ffffff',
+      placement: 'center',
+      overlap: false,
+      autoZoom: true,
+      minzoom: 15,
+      densityAdaptive: true
+    }, cur || {});
+  }
+  function hasUsableLabelValues(entry, field){
+    if(!field || !entry?.data?.features?.length) return false;
+    return entry.data.features.some(f => {
+      const v = f?.properties?.[field];
+      return v !== null && v !== undefined && String(v).trim() !== '';
+    });
+  }
+  function safeArea(feature){
+    try{ return window.turf && feature?.geometry ? (Number(turf.area(feature)) || 0) : 0; }catch(e){ return 0; }
+  }
+  function enrichDensity(entry){
+    if(!entry?.data?.features?.length) return;
+    const feats = entry.data.features;
+    const ranked = feats.map((f, i) => ({i, area: safeArea(f)})).sort((a,b)=>b.area-a.area);
+    const total = ranked.length || 1;
+    ranked.forEach((it, idx) => {
+      const p = feats[it.i].properties || (feats[it.i].properties = {});
+      p.__label_rank_pct = (idx + 1) / total;
+    });
+    try{
+      const src = map.getSource(entry.sourceId);
+      if(src && typeof src.setData === 'function') src.setData(entry.data);
+    }catch(e){}
+  }
+  function buildFilter(field, cfg){
+    const minz = Number(cfg.minzoom || 15);
+    const base = [
+      ['has', field],
+      ['!=', ['to-string', ['coalesce', ['get', field], '']], '']
+    ];
+    if(cfg.densityAdaptive === false) return ['all', ...base];
+    return ['all',
+      ...base,
+      ['case',
+        ['<', ['zoom'], minz + 1], ['<=', ['coalesce', ['get', '__label_rank_pct'], 1], 0.12],
+        ['<', ['zoom'], minz + 2], ['<=', ['coalesce', ['get', '__label_rank_pct'], 1], 0.28],
+        ['<', ['zoom'], minz + 3], ['<=', ['coalesce', ['get', '__label_rank_pct'], 1], 0.55],
+        true
+      ]
+    ];
+  }
+  function buildTextSize(cfg){
+    const s = Number(cfg.size || 10);
+    const minz = Number(cfg.minzoom || 15);
+    if(cfg.autoZoom === false) return s;
+    return ['interpolate', ['linear'], ['zoom'],
+      minz, s,
+      minz + 1, s + 1,
+      minz + 2, s + 3,
+      minz + 4, s + 6
+    ];
+  }
+  function labelVisibility(entry){
+    const cfg = getLabelConfig(entry);
+    return (cfg.enabled && entry?.visible !== false) ? 'visible' : 'none';
+  }
+
+  window.ensureLabelLayer = function(entry){
+    if(!entry || !entry.sourceId) return;
+    removeLabelLayer(entry);
+    const cfg = getLabelConfig(entry);
+    entry.labelConfig = cfg;
+    if(!cfg.enabled || !cfg.field || !hasUsableLabelValues(entry, cfg.field)) return;
+    if(cfg.densityAdaptive !== false) enrichDensity(entry);
+    const id = labelLayerId(entry);
+    const anchorMap = {center:'center', point:'center', line:'center', 'line-center':'center', inside:'center', outside:'top'};
+    try{
+      map.addLayer({
+        id,
+        type:'symbol',
+        source:entry.sourceId,
+        minzoom:Number(cfg.minzoom || 15),
+        filter:buildFilter(cfg.field, cfg),
+        layout:{
+          'symbol-placement': String(cfg.placement || 'center').startsWith('line') ? 'line' : 'point',
+          'text-field':['to-string', ['coalesce', ['get', cfg.field], '']],
+          'text-size':buildTextSize(cfg),
+          'text-font':[cfg.font || 'Open Sans Regular', 'Arial Unicode MS Regular'],
+          'text-anchor':anchorMap[cfg.placement] || 'center',
+          'text-justify':'center',
+          'text-allow-overlap': !!cfg.overlap,
+          'text-ignore-placement': !!cfg.overlap,
+          'text-padding': 2,
+          'text-optional': true,
+          'visibility': labelVisibility(entry)
+        },
+        paint:{
+          'text-color': cfg.color || '#ffffff',
+          'text-halo-width': 0
         }
+      });
+      try{ map.moveLayer(id); }catch(e){}
+    }catch(e){
+      console.warn('ensureLabelLayer error', e);
+    }
+  };
+
+  window.closeLabelConfigPanel = function(){
+    const ov = document.getElementById('labelConfigOverlay');
+    if(ov){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
+  };
+
+  function ensureDialogExtras(){
+    const row = document.getElementById('labelOverlap')?.closest('.style-row') || document.getElementById('labelOverlap')?.parentElement?.parentElement;
+    if(row && !document.getElementById('labelAutoZoom')){
+      const auto = document.createElement('div');
+      auto.innerHTML = '<label class="small">Police selon zoom</label><select id="labelAutoZoom"><option value="true">Automatique</option><option value="false">Fixe</option></select>';
+      row.appendChild(auto);
+    }
+    if(row && !document.getElementById('labelMinZoom')){
+      const mz = document.createElement('div');
+      mz.innerHTML = '<label class="small">Zoom mini</label><select id="labelMinZoom"><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option></select>';
+      row.appendChild(mz);
+    }
+    if(row && !document.getElementById('labelDensityAdaptive')){
+      const da = document.createElement('div');
+      da.innerHTML = '<label class="small">Densité adaptative</label><select id="labelDensityAdaptive"><option value="true">Oui</option><option value="false">Non</option></select>';
+      row.appendChild(da);
+    }
+    const halo = document.getElementById('labelHaloColor')?.closest('div');
+    if(halo) halo.style.display = 'none';
+  }
+
+  window.openLabelConfigPanel = function(id){
+    ensureDialogExtras();
+    const entry = getEntryByIdSafe(id);
+    if(!entry) return;
+    window.currentLabelEntryId = id;
+    const cfg = getLabelConfig(entry);
+    const fields = Object.keys(firstProps(entry)).filter(k => !String(k).startsWith('__'));
+    const sel = document.getElementById('labelFieldSelect');
+    if(sel){
+      sel.innerHTML = '<option value="">Aucune étiquette</option>' + fields.map(f => `<option value="${f}">${f}</option>`).join('');
+      sel.value = cfg.field || '';
+    }
+    const ff = document.getElementById('labelFontFamily'); if(ff) ff.value = cfg.font || 'Open Sans Regular';
+    const fs = document.getElementById('labelFontSize'); if(fs) fs.value = String(Number(cfg.size || 11));
+    const col = document.getElementById('labelColor'); if(col) col.value = cfg.color || '#ffffff';
+    const plc = document.getElementById('labelPlacement'); if(plc) plc.value = cfg.placement || 'center';
+    const ov = document.getElementById('labelOverlap'); if(ov) ov.value = String(!!cfg.overlap);
+    const az = document.getElementById('labelAutoZoom'); if(az) az.value = String(cfg.autoZoom !== false);
+    const mz = document.getElementById('labelMinZoom'); if(mz) mz.value = String(Number(cfg.minzoom || 15));
+    const da = document.getElementById('labelDensityAdaptive'); if(da) da.value = String(cfg.densityAdaptive !== false);
+    const overlay = document.getElementById('labelConfigOverlay');
+    if(overlay) overlay.classList.add('open');
+    window.renderLabelPreview();
+  };
+
+  window.renderLabelPreview = function(){
+    const entry = getEntryByIdSafe(window.currentLabelEntryId);
+    const box = document.getElementById('labelConfigPreview');
+    if(!entry || !box) return;
+    const field = document.getElementById('labelFieldSelect')?.value || '';
+    const sample = field ? String((firstProps(entry)[field] ?? field)) : 'Aperçu étiquette';
+    const font = document.getElementById('labelFontFamily')?.value || 'Open Sans Regular';
+    const size = Number(document.getElementById('labelFontSize')?.value || 10);
+    const color = document.getElementById('labelColor')?.value || '#ffffff';
+    box.innerHTML = `<div style="font-family:${font.includes('Open Sans') ? 'Arial' : font.split(' ')[0]};font-size:${size}px;color:${color};padding:18px;text-align:center">${sample}</div>`;
+  };
+
+  window.saveLabelConfigPanel = function(){
+    const entry = getEntryByIdSafe(window.currentLabelEntryId);
+    if(!entry) return;
+    entry.labelConfig = {
+      enabled: true,
+      field: document.getElementById('labelFieldSelect')?.value || '',
+      font: document.getElementById('labelFontFamily')?.value || 'Open Sans Regular',
+      size: Number(document.getElementById('labelFontSize')?.value || 10),
+      color: document.getElementById('labelColor')?.value || '#ffffff',
+      placement: document.getElementById('labelPlacement')?.value || 'center',
+      overlap: (document.getElementById('labelOverlap')?.value || 'false') === 'true',
+      autoZoom: (document.getElementById('labelAutoZoom')?.value || 'true') === 'true',
+      minzoom: Number(document.getElementById('labelMinZoom')?.value || 17),
+      densityAdaptive: (document.getElementById('labelDensityAdaptive')?.value || 'true') === 'true'
+    };
+    if(!entry.labelConfig.field) entry.labelConfig.enabled = false;
+    window.ensureLabelLayer(entry);
+    if(typeof window.updateLayerManager === 'function') window.updateLayerManager();
+    if(typeof window.refreshStyleLabelSection === 'function') window.refreshStyleLabelSection();
+    window.closeLabelConfigPanel();
+  };
+
+  function ensureStyleLabelSection(){ return; }
+
+  window.refreshStyleLabelSection = function(){ return; };
+
+  window.saveLabelsFromStylePanel = function(){ return; };
+
+  window.openLabelConfigFromStyle = function(){
+    const entry = (typeof window.getCurrentStyleEntry === 'function') ? window.getCurrentStyleEntry() : null;
+    if(entry) window.openLabelConfigPanel(entry.id);
+  };
+
+  function injectLayerManagerLabelControls(){
+    const wrap = document.getElementById('layersList');
+    if(!wrap) return;
+    wrap.querySelectorAll('.layer-label-row').forEach(el => el.remove());
+  }
+
+  const origUpdateLayerManager = window.updateLayerManager;
+  if(typeof origUpdateLayerManager === 'function'){
+    window.updateLayerManager = function(){
+      const out = origUpdateLayerManager.apply(this, arguments);
+      try{ injectLayerManagerLabelControls(); }catch(e){ console.warn(e); }
+      return out;
+    };
+  }
+  const origRefreshStylePanel = window.refreshLayerStylePanel;
+  if(typeof origRefreshStylePanel === 'function'){
+    window.refreshLayerStylePanel = function(){
+      const out = origRefreshStylePanel.apply(this, arguments);
+      try{ window.refreshStyleLabelSection(); }catch(e){}
+      return out;
+    };
+  }
+  const origApplyEntryStyle = window.applyEntryStyle;
+  if(typeof origApplyEntryStyle === 'function'){
+    window.applyEntryStyle = function(entry, skipLegend){
+      const out = origApplyEntryStyle.apply(this, arguments);
+      try{ window.ensureLabelLayer(entry); }catch(e){}
+      return out;
+    };
+  }
+  const origAddLayerEntry = window.addLayerEntry;
+  if(typeof origAddLayerEntry === 'function'){
+    window.addLayerEntry = function(fc, name){
+      const out = origAddLayerEntry.apply(this, arguments);
+      try{
+        const entry = entries()[entries().length - 1];
+        if(entry && !entry.labelConfig){
+          entry.labelConfig = getLabelConfig(entry);
+          entry.labelConfig.enabled = false;
+        }
+        window.ensureLabelLayer(entry);
+      }catch(e){}
+      setTimeout(() => { try{ window.updateLayerManager(); }catch(e){} }, 40);
+      return out;
+    };
+  }
+  const origToggleEntryVisible = window.toggleEntryVisible;
+  if(typeof origToggleEntryVisible === 'function'){
+    window.toggleEntryVisible = function(id, visible){
+      const out = origToggleEntryVisible.apply(this, arguments);
+      const entry = getEntryByIdSafe(id);
+      try{
+        const lid = labelLayerId(entry);
+        if(entry && map.getLayer(lid)) map.setLayoutProperty(lid, 'visibility', labelVisibility(entry));
+      }catch(e){}
+      return out;
+    };
+  }
+  const origRemoveEntry = window.removeEntry;
+  if(typeof origRemoveEntry === 'function'){
+    window.removeEntry = function(id){
+      try{ removeLabelLayer(getEntryByIdSafe(id)); }catch(e){}
+      return origRemoveEntry.apply(this, arguments);
+    };
+  }
+
+  function init(){
+    ensureDialogExtras();
+    ensureStyleLabelSection();
+    try{ if(typeof window.updateLayerManager === 'function') window.updateLayerManager(); }catch(e){}
+    try{ if(typeof window.refreshStyleLabelSection === 'function') window.refreshStyleLabelSection(); }catch(e){}
+    entries().forEach(entry => { try{ window.ensureLabelLayer(entry); }catch(e){} });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  window.addEventListener('load', function(){ setTimeout(init, 200); });
+})();
+</script>
+
+
+<style id="ov-user-20260420">
+#layer3dExtrusionHost .extrusion-layer-toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ececec}
+#layer3dExtrusionHost .extrusion-layer-toolbar .row{align-items:end}
+#layer3dExtrusionHost .extrusion-layer-toolbar select{width:100%}
+#layer3dExtrusionHost .extrusion-layer-toolbar .extrusion-caption{font-size:10px;color:#6b7280;margin-top:2px}
+#layer3dExtrusionHost .extrusion-target-name{font-size:11px;color:#003C71;font-weight:700;margin:4px 0 10px 0}
+</style>
+<script id="ov-user-20260420">
+(function(){
+  const map = window.map;
+  if(!map) return;
+
+  function getAllLayers(){ return Array.isArray(window.userLayers) ? window.userLayers : []; }
+  function getEntry(id){ return getAllLayers().find(e => e.id === id) || null; }
+  function isExtrudable(entry){
+    if(!entry) return false;
+    const g = String(entry.geometryType || '').toLowerCase();
+    return entry.type === 'building' || g.includes('polygon');
+  }
+  function getExtrudableLayers(){ return getAllLayers().filter(isExtrudable); }
+
+  function setSelectionToolState(on){
+    window.selectionMode = !!on;
+    if(on) window.activeMapTool = 'selection';
+    else if(window.activeMapTool === 'selection') window.activeMapTool = null;
+  }
+  function setMeasureToolState(on){ window.measureMode = !!on; }
+
+  if(typeof window.toggleSelectionMode === 'function' && !window.__ovSelectionStatePatch){
+    const original = window.toggleSelectionMode;
+    window.toggleSelectionMode = function(){
+      const result = original.apply(this, arguments);
+      try{
+        const btn = document.getElementById('btnSelectTool');
+        setSelectionToolState(!!(btn && btn.classList.contains('active')));
       }catch(e){}
       return result;
     };
+    window.__ovSelectionStatePatch = true;
+  }
+  if(typeof window.setMeasureMode === 'function' && !window.__ovMeasureStatePatch){
+    const original = window.setMeasureMode;
+    window.setMeasureMode = function(){ const r = original.apply(this, arguments); setMeasureToolState(true); setSelectionToolState(false); return r; };
+    window.__ovMeasureStatePatch = true;
+  }
+  if(typeof window.closeMeasureMode === 'function' && !window.__ovMeasureClosePatch){
+    const original = window.closeMeasureMode;
+    window.closeMeasureMode = function(){ const r = original.apply(this, arguments); setMeasureToolState(false); return r; };
+    window.__ovMeasureClosePatch = true;
   }
 
-  const oldToggleEntryVisible = window.toggleEntryVisible;
-  if(typeof oldToggleEntryVisible === 'function'){
-    window.toggleEntryVisible = function(id, visible){
-      const out = oldToggleEntryVisible.apply(this, arguments);
-      try{
-        const entry = getEntryById(id);
-        const lid = labelLayerId(entry);
-        if(entry && map.getLayer(lid)) map.setLayoutProperty(lid, 'visibility', (window.labelsVisible === false || !visible) ? 'none' : 'visible');
-      }catch(e){}
-      return out;
-    };
+  if(!window.__ovSelectionEscapeBound){
+    window.__ovSelectionEscapeBound = true;
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape' && window.selectionMode && typeof window.toggleSelectionMode === 'function'){
+        ev.preventDefault();
+        window.toggleSelectionMode();
+      }
+    }, true);
+    document.addEventListener('contextmenu', function(ev){
+      if(window.selectionMode && typeof window.toggleSelectionMode === 'function'){
+        ev.preventDefault();
+        window.toggleSelectionMode();
+      }
+    }, true);
   }
 
-  const oldApplyEntryStyle = window.applyEntryStyle;
-  if(typeof oldApplyEntryStyle === 'function'){
-    window.applyEntryStyle = function(entry, skipLegend){
-      const out = oldApplyEntryStyle.apply(this, arguments);
-      try{
-        if(entry && entry.data?.features?.length){
-          applyAutoLabelConfig(entry, false);
-          window.ensureLabelLayer(entry);
-        }
-      }catch(e){}
-      return out;
-    };
-  }
-
-  const oldRemoveEntry = window.removeEntry;
-  if(typeof oldRemoveEntry === 'function'){
-    window.removeEntry = function(id){
-      try{
-        const entry = getEntryById(id);
-        const lid = labelLayerId(entry);
-        if(lid && map.getLayer(lid)) map.removeLayer(lid);
-      }catch(e){}
-      return oldRemoveEntry.apply(this, arguments);
-    };
-  }
-
-  function refreshAllAutoLabels(){
+  function setSelectionHighlightPalette(mode){
     try{
-      (Array.isArray(window.userLayers) ? window.userLayers : []).forEach(entry => {
-        if(!entry?.sourceId || !entry?.data?.features?.length) return;
-        applyAutoLabelConfig(entry, false);
-        window.ensureLabelLayer(entry);
-      });
+      if(!map.getLayer('selection-highlight-line')) return;
+      if(mode === 'popup'){
+        if(map.getLayer('selection-highlight-fill')){
+          map.setPaintProperty('selection-highlight-fill','fill-color','#38bdf8');
+          map.setPaintProperty('selection-highlight-fill','fill-opacity',0.14);
+        }
+        map.setPaintProperty('selection-highlight-line','line-color','#0284c7');
+        map.setPaintProperty('selection-highlight-line','line-width',3);
+        if(map.getLayer('selection-highlight-circle')){
+          map.setPaintProperty('selection-highlight-circle','circle-color','#38bdf8');
+          map.setPaintProperty('selection-highlight-circle','circle-stroke-color','#0284c7');
+        }
+      } else {
+        if(map.getLayer('selection-highlight-fill')){
+          map.setPaintProperty('selection-highlight-fill','fill-color','#facc15');
+          map.setPaintProperty('selection-highlight-fill','fill-opacity',0.2);
+        }
+        map.setPaintProperty('selection-highlight-line','line-color','#e11d48');
+        map.setPaintProperty('selection-highlight-line','line-width',3);
+        if(map.getLayer('selection-highlight-circle')){
+          map.setPaintProperty('selection-highlight-circle','circle-color','#e11d48');
+          map.setPaintProperty('selection-highlight-circle','circle-stroke-color','#ffffff');
+        }
+      }
     }catch(e){}
   }
+  window.setSelectionHighlightPalette = setSelectionHighlightPalette;
 
-  window.refreshAllAutoLabels = refreshAllAutoLabels;
+  window.bindPopup = function(layerId, title){
+    if(!layerId) return;
+    map.__boundPopupsOV = map.__boundPopupsOV || {};
+    const reg = map.__boundPopupsOV[layerId];
+    if(reg){
+      try{ map.off('click', layerId, reg.clickHandler); }catch(e){}
+      try{ map.off('mouseenter', layerId, reg.enterHandler); }catch(e){}
+      try{ map.off('mouseleave', layerId, reg.leaveHandler); }catch(e){}
+    }
 
-  if(map.loaded()) refreshAllAutoLabels();
-  else map.on('load', refreshAllAutoLabels);
+    const clickHandler = function(e){
+      if(window.selectionMode || window.measureMode) return;
+      const ownerEntry = getAllLayers().find(u => Array.isArray(u.layerIds) && u.layerIds.includes(layerId)) || null;
+      const activeId = window.__popupActiveLayerId || null;
+      if(activeId && ownerEntry && ownerEntry.id !== activeId) return;
+      const f = e && e.features && e.features[0];
+      if(!f) return;
+      try{ if(e.originalEvent && typeof e.originalEvent.stopPropagation === 'function') e.originalEvent.stopPropagation(); }catch(err){}
+      try{ if(typeof window.closeActivePopup === 'function') window.closeActivePopup(); else if(map.__activePopup) map.__activePopup.remove(); }catch(err){}
+      const popupTitle = (ownerEntry && ownerEntry.name) || title || 'Objet';
+      const popupMaxWidth = (ownerEntry && ownerEntry.popupConfig && ownerEntry.popupConfig.maxWidth) || '360px';
+      const html = typeof window.popupHtml === 'function' ? window.popupHtml(popupTitle, f.properties || {}, e.lngLat, ownerEntry) : '<div class="popup-scroll"><b>'+popupTitle+'</b></div>';
+      map.__activePopup = new maplibregl.Popup({maxWidth: popupMaxWidth, closeOnClick:false})
+        .setLngLat(e.lngLat)
+        .setHTML(html)
+        .addTo(map);
+      map.__activePopup.on('close', function(){
+        map.__activePopup = null;
+        try{ if(typeof window.setPopupHoverFeature === 'function') window.setPopupHoverFeature(null); }catch(err){}
+        setSelectionHighlightPalette('selection');
+        try{ if(typeof window.refreshSelectionHighlight === 'function') window.refreshSelectionHighlight(); }catch(err){}
+      });
+      try{ if(typeof window.setPopupHoverFeature === 'function') window.setPopupHoverFeature(f); }catch(err){}
+      try{
+        if(typeof window.makeSelectionFeature === 'function'){
+          window.selection = [window.makeSelectionFeature(f)];
+          window.tableSelectedIds = new Set([window.selection[0].properties.__fid]);
+          if(typeof window.updateTable === 'function') window.updateTable();
+          if(typeof window.updateStats === 'function') window.updateStats();
+        }
+        setSelectionHighlightPalette('popup');
+        if(typeof window.refreshSelectionHighlight === 'function') window.refreshSelectionHighlight(f);
+      }catch(err){ console.error('Popup selection sync error', err); }
+    };
+    const enterHandler = function(){ try{ map.getCanvas().style.cursor='pointer'; }catch(e){} };
+    const leaveHandler = function(){ try{ if(!window.selectionMode) map.getCanvas().style.cursor=''; }catch(e){} };
+    try{ map.on('click', layerId, clickHandler); }catch(e){}
+    try{ map.on('mouseenter', layerId, enterHandler); }catch(e){}
+    try{ map.on('mouseleave', layerId, leaveHandler); }catch(e){}
+    map.__boundPopupsOV[layerId] = {clickHandler, enterHandler, leaveHandler};
+  };
+  window.bindPopupManaged = window.bindPopup;
+
+  function injectLabelActionButtons(){
+    getAllLayers().forEach(entry => {
+      const menu = document.getElementById('menu_' + entry.id);
+      if(!menu || menu.querySelector('[data-label-style-action="1"]')) return;
+      const popupBtn = Array.from(menu.querySelectorAll('button')).find(btn => /Configurer popup/i.test(btn.textContent || ''));
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('data-label-style-action','1');
+      btn.innerHTML = '<i class="fa-solid fa-font"></i> Style des étiquettes';
+      btn.onclick = function(){
+        if(typeof window.closeLayerMenus === 'function') window.closeLayerMenus();
+        window.currentLabelEntryId = entry.id;
+        window.setTimeout(function(){
+          if(typeof window.openLabelConfigPanel === 'function') window.openLabelConfigPanel(entry.id);
+          const overlay = document.getElementById('labelConfigOverlay');
+          if(overlay) overlay.classList.add('open');
+        }, 10);
+      };
+      if(popupBtn && popupBtn.parentNode) popupBtn.insertAdjacentElement('afterend', btn);
+      else menu.insertBefore(btn, menu.querySelector('.danger') || null);
+    });
+  }
+
+  function ensureExtrusionToolbar(){
+    const host = document.getElementById('layer3dExtrusionHost');
+    if(!host) return;
+    if(!document.getElementById('extrusionLayerToolbar')){
+      const wrap = document.createElement('div');
+      wrap.id = 'extrusionLayerToolbar';
+      wrap.className = 'extrusion-layer-toolbar';
+      wrap.innerHTML = `
+        <div>
+          <div class="style-section-title"><i class="fa-solid fa-cubes" style="margin-right:6px"></i>Extrusion de couche</div>
+          <div class="small">Choisis la couche à extruder indépendamment du configurateur de style.</div>
+        </div>
+        <div>
+          <label class="small">Couche concernée</label>
+          <select id="extrusionLayerSelect"></select>
+          <div id="extrusionTargetName" class="extrusion-target-name"></div>
+        </div>
+      `;
+      host.insertBefore(wrap, host.firstChild);
+      const sel = document.getElementById('extrusionLayerSelect');
+      if(sel) sel.addEventListener('change', function(){
+        window.__extrusionTargetLayerId = this.value || '';
+        if(typeof window.loadExtrusionSettingsForSelectedLayer === 'function') window.loadExtrusionSettingsForSelectedLayer();
+      });
+    }
+    let footer = document.getElementById('layer3dExtrusionActions');
+    if(!footer){
+      footer = document.createElement('div');
+      footer.id = 'layer3dExtrusionActions';
+      footer.className = 'row';
+      footer.innerHTML = `
+        <button type="button" onclick="applyExtrusionSettingsFromPanel()"><i class="fa-solid fa-check"></i> Valider extrusion</button>
+        <button type="button" onclick="resetExtrusionSettingsFromPanel()"><i class="fa-solid fa-rotate-left"></i> Réinitialiser extrusion</button>
+      `;
+    }
+    const extrusionCard = document.getElementById('extrusionControls');
+    if(extrusionCard && extrusionCard.nextSibling !== footer){
+      extrusionCard.insertAdjacentElement('afterend', footer);
+    } else if(!footer.parentNode){
+      host.appendChild(footer);
+    }
+  }
+
+  window.refreshExtrusionLayerSelector = function(){
+    ensureExtrusionToolbar();
+    const sel = document.getElementById('extrusionLayerSelect');
+    if(!sel) return;
+    const layers = getExtrudableLayers();
+    const previous = window.__extrusionTargetLayerId || sel.value;
+    if(!layers.length){
+      sel.innerHTML = '<option value="">Aucune couche polygonale</option>';
+      const name = document.getElementById('extrusionTargetName');
+      if(name) name.textContent = 'Aucune couche compatible actuellement.';
+      return;
+    }
+    sel.innerHTML = layers.map(entry => `<option value="${entry.id}">${entry.name}</option>`).join('');
+    const valid = layers.some(entry => entry.id === previous) ? previous : layers[0].id;
+    sel.value = valid;
+    window.__extrusionTargetLayerId = valid;
+    if(typeof window.loadExtrusionSettingsForSelectedLayer === 'function') window.loadExtrusionSettingsForSelectedLayer();
+  };
+
+  window.loadExtrusionSettingsForSelectedLayer = function(){
+    const entry = getEntry(window.__extrusionTargetLayerId || document.getElementById('extrusionLayerSelect')?.value || '');
+    const hostLabel = document.getElementById('extrusionTargetName');
+    if(!entry){ if(hostLabel) hostLabel.textContent = 'Aucune couche sélectionnée.'; return; }
+    window.currentStyledLayerId = entry.id;
+    if(typeof window.populateStylePanelForEntry === 'function') window.populateStylePanelForEntry(entry);
+    if(hostLabel) hostLabel.textContent = 'Couche active : ' + entry.name;
+  };
+
+  window.applyExtrusionSettingsFromPanel = function(){
+    const entry = getEntry(window.__extrusionTargetLayerId || document.getElementById('extrusionLayerSelect')?.value || '');
+    if(!entry) return;
+    window.currentStyledLayerId = entry.id;
+    if(typeof window.applyActiveLayerStyle === 'function') window.applyActiveLayerStyle();
+    if(typeof window.clearStyleDirty === 'function') window.clearStyleDirty('Extrusion appliquée.');
+    if(typeof window.refreshExtrusionLayerSelector === 'function') window.refreshExtrusionLayerSelector();
+  };
+
+  window.resetExtrusionSettingsFromPanel = function(){
+    const entry = getEntry(window.__extrusionTargetLayerId || document.getElementById('extrusionLayerSelect')?.value || '');
+    if(!entry || typeof window.getDefaultLayerStyle !== 'function') return;
+    const defs = window.getDefaultLayerStyle(entry);
+    entry.extrusionEnabled = defs.extrusionEnabled;
+    entry.extrusionField = defs.extrusionField;
+    entry.extrusionMode = defs.extrusionMode;
+    entry.heightFactor = defs.heightFactor;
+    entry.extrusionFactor = defs.extrusionFactor;
+    entry.extrusionMin = defs.extrusionMin;
+    entry.extrusionMax = defs.extrusionMax;
+    entry.extrusionDefault = defs.extrusionDefault;
+    entry.extrusionNormalize = defs.extrusionNormalize;
+    window.currentStyledLayerId = entry.id;
+    if(typeof window.applyEntryStyle === 'function') window.applyEntryStyle(entry);
+    if(typeof window.clearStyleDirty === 'function') window.clearStyleDirty('Extrusion réinitialisée.');
+  };
+
+  if(typeof window.updateLayerManager === 'function' && !window.__ovUpdateLayerManagerPatched){
+    const original = window.updateLayerManager;
+    window.updateLayerManager = function(){
+      const r = original.apply(this, arguments);
+      injectLabelActionButtons();
+      if(typeof window.refreshExtrusionLayerSelector === 'function') window.refreshExtrusionLayerSelector();
+      return r;
+    };
+    window.__ovUpdateLayerManagerPatched = true;
+  }
+
+  const oldRefreshStyleUi = window.refreshLayerStyleUi;
+  window.refreshLayerStyleUi = function(){
+    if(typeof oldRefreshStyleUi === 'function') oldRefreshStyleUi.apply(this, arguments);
+    const ext = document.getElementById('extrusionControls');
+    const host = document.getElementById('layer3dExtrusionHost');
+    if(ext && host && !host.contains(ext)) host.appendChild(ext);
+  };
+
+  const originalApplyActiveLayerStyle = window.applyActiveLayerStyle;
+  if(typeof originalApplyActiveLayerStyle === 'function' && !window.__styleApplySeparatedFromExtrusion){
+    window.applyActiveLayerStyle = function(){
+      const entry = (typeof window.getCurrentStyleEntry === 'function') ? window.getCurrentStyleEntry() : null;
+      const saved = entry ? {
+        extrusionEnabled: entry.extrusionEnabled, extrusionField: entry.extrusionField, extrusionMode: entry.extrusionMode,
+        heightFactor: entry.heightFactor, extrusionFactor: entry.extrusionFactor, extrusionMin: entry.extrusionMin,
+        extrusionMax: entry.extrusionMax, extrusionDefault: entry.extrusionDefault, extrusionNormalize: entry.extrusionNormalize
+      } : null;
+      const out = originalApplyActiveLayerStyle.apply(this, arguments);
+      if(entry && saved){
+        Object.assign(entry, saved);
+        if(typeof window.applyEntryStyle === 'function') window.applyEntryStyle(entry);
+      }
+      return out;
+    };
+    window.__styleApplySeparatedFromExtrusion = true;
+  }
+  const originalResetLayerStyleDefaults = window.resetLayerStyleDefaults;
+  if(typeof originalResetLayerStyleDefaults === 'function' && !window.__styleResetSeparatedFromExtrusion){
+    window.resetLayerStyleDefaults = function(){
+      const entry = (typeof window.getCurrentStyleEntry === 'function') ? window.getCurrentStyleEntry() : null;
+      const saved = entry ? {
+        extrusionEnabled: entry.extrusionEnabled, extrusionField: entry.extrusionField, extrusionMode: entry.extrusionMode,
+        heightFactor: entry.heightFactor, extrusionFactor: entry.extrusionFactor, extrusionMin: entry.extrusionMin,
+        extrusionMax: entry.extrusionMax, extrusionDefault: entry.extrusionDefault, extrusionNormalize: entry.extrusionNormalize
+      } : null;
+      const out = originalResetLayerStyleDefaults.apply(this, arguments);
+      if(entry && saved){
+        Object.assign(entry, saved);
+        if(typeof window.applyEntryStyle === 'function') window.applyEntryStyle(entry);
+      }
+      return out;
+    };
+    window.__styleResetSeparatedFromExtrusion = true;
+  }
+
+  setSelectionToolState(false);
+  setMeasureToolState(false);
+  setSelectionHighlightPalette('selection');
+  setTimeout(function(){
+    try{ if(typeof window.updateLayerManager === 'function') window.updateLayerManager(); }catch(e){}
+    try{ if(typeof window.refreshExtrusionLayerSelector === 'function') window.refreshExtrusionLayerSelector(); }catch(e){}
+    try{ if(typeof window.rebindAllUserLayerPopups === 'function') window.rebindAllUserLayerPopups(); }catch(e){}
+  }, 120);
 })();
 </script>
 
